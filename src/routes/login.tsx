@@ -30,19 +30,21 @@ function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-muted/40 via-background to-muted/40 px-4">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-[#EEF2FF] via-white to-[#F8FAFC] px-4">
       <div className="grid w-full max-w-5xl gap-8 lg:grid-cols-2 lg:items-center">
         <div className="hidden flex-col gap-6 lg:flex">
           <div className="flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#4361EE] text-white shadow-md shadow-blue-200">
               <Building2 className="h-6 w-6" />
             </div>
             <div>
-              <h1 className="text-2xl font-semibold tracking-tight">ERP Dashboard</h1>
-              <p className="text-sm text-muted-foreground">Unified operations, accounting, tax & finance.</p>
+              <h1 className="text-2xl font-semibold tracking-tight text-slate-900">ERP Dashboard</h1>
+              <p className="text-sm text-slate-600">
+                Unified operations, accounting, tax & finance.
+              </p>
             </div>
           </div>
-          <p className="max-w-md text-sm text-muted-foreground">
+          <p className="max-w-md text-sm text-slate-600">
             Sign in with your role to access your tailored workspace. Streamline sales, inventory, production,
             cashflow, tax reporting, and more — all from one clean interface.
           </p>
@@ -50,19 +52,20 @@ function LoginPage() {
             <div className="mb-1 font-medium text-foreground">Demo roles</div>
             <div className="flex flex-wrap gap-1.5">
               {VALID_ROLES.map((r) => (
-                <span key={r} className="rounded-md bg-muted px-2 py-0.5 capitalize">
-                  {r}
-                </span>
+            <span
+              key={r}
+              className="rounded-lg bg-[#EEF2FF] px-2.5 py-1 text-[#4361EE] capitalize font-medium"
+            >{r}</span>
               ))}
             </div>
             <p className="mt-2">Use the role name as username (any password).</p>
           </div>
         </div>
 
-        <Card className="rounded-2xl border shadow-sm">
+        <Card className="rounded-3xl border border-slate-200 bg-white/95 shadow-xl backdrop-blur">
           <CardHeader className="space-y-1">
             <div className="flex items-center gap-2 lg:hidden">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#4361EE] text-white">
                 <Building2 className="h-5 w-5" />
               </div>
               <span className="text-base font-semibold">ERP Dashboard</span>
@@ -100,7 +103,10 @@ function LoginPage() {
                   {error}
                 </div>
               )}
-              <Button type="submit" className="w-full">
+              <Button
+                type="submit"
+                className="w-full bg-[#4361EE] text-white shadow-md shadow-blue-200 hover:bg-[#3651D4]"
+              >
                 Sign in
               </Button>
             </form>

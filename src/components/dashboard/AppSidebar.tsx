@@ -25,31 +25,47 @@ export function AppSidebar({ workspace }: { workspace: WorkspaceConfig }) {
     url === workspace.basePath ? pathname === url : pathname === url || pathname.startsWith(url + "/");
 
   return (
-    <Sidebar collapsible="icon">
+    <Sidebar
+  collapsible="icon"
+  className="border-r border-slate-200 !bg-gradient-to-b !from-[#4361EE] !to-[#3651D4] text-white"
+>
       <SidebarHeader>
         <div className="flex items-center gap-2 px-2 py-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#4361EE] text-white">
             <Building2 className="h-5 w-5" />
           </div>
           <div className="flex flex-col group-data-[collapsible=icon]:hidden">
-            <span className="text-sm font-semibold">ERP Dashboard</span>
-            <span className="text-xs text-muted-foreground">{workspace.label}</span>
+            <span className="text-sm font-semibold text-white">ERP Dashboard</span>
+            <span className="text-xs text-blue-100">{workspace.label}</span>
           </div>
         </div>
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>{workspace.label}</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-blue-100/80 uppercase tracking-wider text-[11px]"> {workspace.label}
+        </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {workspace.items.map((item) => (
                 <SidebarMenuItem key={item.url}>
-                  <SidebarMenuButton asChild isActive={isActive(item.url)} tooltip={item.title}>
-                    <Link to={item.url}>
-                      <item.icon className="h-4 w-4" />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
+                <SidebarMenuButton 
+                  asChild 
+                  isActive={isActive(item.url)} 
+                  tooltip={item.title} 
+                  className="
+                    rounded-xl transition-all duration-200
+                    text-white/80 hover:bg-white/10 hover:text-white
+                    data-[active=true]:bg-white 
+                    data-[active=true]:text-[#4361EE] 
+                    data-[active=true]:shadow-md
+                    data-[active=true]:font-semibold
+                  "
+                >
+                  <Link to={item.url}>
+                    <item.icon className="h-5 w-5" />
+                    <span>{item.title}</span>
+                  </Link>
+                </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
@@ -59,10 +75,12 @@ export function AppSidebar({ workspace }: { workspace: WorkspaceConfig }) {
       <SidebarFooter>
         <div className="flex flex-col gap-2 p-2 group-data-[collapsible=icon]:hidden">
           {session && (
-            <div className="flex items-center justify-between rounded-md border bg-card p-2">
+            <div className="flex items-center justify-between rounded-xl bg-white/10 p-3 backdrop-blur border border-white/10">
               <div className="flex flex-col text-xs">
-                <span className="font-medium">{session.username}</span>
-                <Badge variant="secondary" className="mt-1 w-fit text-[10px] capitalize">
+                <span className="font-medium text-white">
+                  {session.username}
+                </span>
+                <Badge className="mt-1 w-fit bg-white text-[#4361EE] text-[10px] capitalize hover:bg-white">
                   {session.role}
                 </Badge>
               </div>
@@ -73,7 +91,7 @@ export function AppSidebar({ workspace }: { workspace: WorkspaceConfig }) {
               logout();
               navigate({ to: "/login" });
             }}
-            className="flex items-center gap-2 rounded-md px-2 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm text-blue-100 transition-all hover:bg-white/10 hover:text-white"
           >
             <LogOut className="h-4 w-4" />
             <span>Sign out</span>
