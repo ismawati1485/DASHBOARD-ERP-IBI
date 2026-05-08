@@ -20,6 +20,7 @@ const alasanVariant = (a: string): "default" | "secondary" | "destructive" | "ou
   return "outline";
 };
 
+{/* Status Badge berdasarkan alasan Lost sales */}
 function SalesPage() {
   const persen = salesKpi.persenTercapai;
   const realisasi = salesKpi.realisasi;
@@ -53,6 +54,7 @@ function SalesPage() {
             </Card>
           ))}
         </div>
+{/* Menampilkan KPI dalam bentuk card */}
 
         <Card className="rounded-xl shadow-sm">
           <CardHeader>

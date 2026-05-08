@@ -10,12 +10,15 @@ import {
   slowMoving, topItemSalesInv, salesPerCategory, poVsReceiving, soVsInvoice, stockList, type StockStatus,
 } from "@/data/inventory";
 
+{/* format currency */}
 const fmtIDR = (n: number) =>
   new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(n);
+{/* format tanggal */}
 const fmtDate = (s: string) =>
   new Date(s).toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" });
+{/* format number */}
 const fmtNum = (n: number) => new Intl.NumberFormat("id-ID").format(n);
-
+{/* penentuan warna badge status stok */}
 const PIE_COLORS = ["#4361EE", "#43b8d2", "#9442f2", "#ed39e4"];
 
 const statusVariant = (s: StockStatus): "default" | "secondary" | "destructive" => {
@@ -39,6 +42,7 @@ function InventoryPage() {
         crumbs={[{ label: "Dashboard", to: "/dashboard" }, { label: "Inventory" }]}
       />
 
+{/* Top Item Slow Moving */}
       <div className="grid gap-4 lg:grid-cols-2">
         <Card className="rounded-xl shadow-sm">
           <CardHeader><CardTitle className="text-base">Top Item Slow Moving</CardTitle></CardHeader>
@@ -64,6 +68,7 @@ function InventoryPage() {
           </CardContent>
         </Card>
 
+{/* Top Item Sales */}
         <Card className="rounded-xl shadow-sm">
           <CardHeader><CardTitle className="text-base">Top Item Sales</CardTitle></CardHeader>
           <CardContent>
@@ -89,6 +94,7 @@ function InventoryPage() {
         </Card>
       </div>
 
+{/* Menampilkan KPI dalam bentuk card */}
       <div className="mt-4 grid gap-4 lg:grid-cols-3">
         <Card className="rounded-xl shadow-sm">
           <CardHeader><CardTitle className="text-base">Sales per Category</CardTitle></CardHeader>
@@ -157,6 +163,7 @@ function InventoryPage() {
         </CardContent>
       </Card>
 
+{/* Stock List */}
       <Card className="mt-4 rounded-xl shadow-sm">
         <CardHeader><CardTitle className="text-base">Stock List</CardTitle></CardHeader>
         <CardContent>
@@ -177,6 +184,7 @@ function InventoryPage() {
                 <TableHead>Status</TableHead>
               </TableRow>
             </TableHeader>
+          {/* Menampilkan data stok dalam bentuk tabel */}
             <TableBody>
               {stockList.map((s, idx) => (
                 <TableRow key={s.itemCode}>

@@ -56,3 +56,5 @@ export function DashboardLayout({ allowedRoles, children }: { allowedRoles: Role
     </SidebarProvider>
   );
 }
+
+// this is the main layout for the dashboard, it will check if the user is logged in and has the correct role to access the page, if not it will redirect to the login page or the correct dashboard page based on the users role

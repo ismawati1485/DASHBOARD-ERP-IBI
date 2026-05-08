@@ -13,12 +13,14 @@ import {
   productionByItem, realizationData, wastePercentage, productionAnalysis,
 } from "@/data/production";
 
+{/* Format Currency */}
 const fmtIDR = (n: number) =>
   new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(n);
 const fmtNum = (n: number) => new Intl.NumberFormat("id-ID").format(n);
-
+{/* Colors for Pie Chart */}
 const PIE_COLORS = ["#4361EE",   "#4895EF","#1E3A8A", "#2563EB", "#3B82F6", "#60A5FA"];
 
+{/* Production Dashboard Page Component */}
 function ProductionPage() {
   return (
     <div className="space-y-6">
@@ -27,7 +29,6 @@ function ProductionPage() {
         description="Monitor realisasi produksi, COGM, dan analisis mesin produksi."
         crumbs={[{ label: "Dashboard", to: "/dashboard" }, { label: "Production" }]}
       />
-
       <div className="grid gap-4 lg:grid-cols-3">
         <Card className="rounded-xl shadow-sm lg:col-span-2">
           <CardHeader>
@@ -36,6 +37,8 @@ function ProductionPage() {
               Total Produksi vs Total COGM — periode 1 tahun
             </p>
           </CardHeader>
+
+          {/* Production Bar Chart */}
           <CardContent>
             <div className="h-[340px] w-full">
               <ResponsiveContainer>
@@ -74,6 +77,7 @@ function ProductionPage() {
           </CardContent>
         </Card>
 
+{/* Production Realization Pie Chart */}
         <Card className="rounded-xl shadow-sm">
           <CardHeader>
             <CardTitle className="text-base">Production Realization Summary</CardTitle>
@@ -147,7 +151,7 @@ function ProductionPage() {
                   <TableCell className="text-right tabular-nums">{r.jumlahWo}</TableCell>
                   <TableCell className="text-right tabular-nums">{r.tonase.toFixed(1)} t</TableCell>
                   <TableCell className="text-right tabular-nums">{fmtIDR(r.cogm)}</TableCell>
-                  <TableCell className="text-right tabular-nums">{fmtIDR(r.estimasiTkl)}</TableCell>
+                  <TableCell className="text-right tabular-nums">{(r.estimasiTkl)} Orang </TableCell>
                   <TableCell className="text-right">{r.estimasiWaktu}</TableCell>
                 </TableRow>
               ))}

@@ -7,14 +7,16 @@ import {
 } from "recharts";
 import { topCustomers, customerSegments } from "@/data/customer";
 
+{/* Format currency */}
 const fmtIDR = (n: number) =>
   new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(n);
-
+{/* Format tanggal */}
 const fmtDate = (s: string) =>
   new Date(s).toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" });
-
+{/*penentuan warna bar chart */}
 const BAR_COLORS = ["#4361EE", "#5B7CFA", "#7C9CFF", "#9DB5FF", "#BFD0FF"];
 
+{/*Dashboard informasi pelanggan*/}
 function CustomerPage() {
   return (
     <div>
@@ -23,7 +25,6 @@ function CustomerPage() {
         description="Analisis customer terbaik dan distribusi segmen pelanggan."
         crumbs={[{ label: "Dashboard", to: "/dashboard" }, { label: "Customer" }]}
       />
-
       <div className="grid gap-4 lg:grid-cols-3">
         <Card className="rounded-xl shadow-sm lg:col-span-2">
           <CardHeader><CardTitle className="text-base">Top Customer</CardTitle></CardHeader>
@@ -51,6 +52,7 @@ function CustomerPage() {
           </CardContent>
         </Card>
 
+{/* Dashboard Segment Pelanggan */}
         <Card className="rounded-xl shadow-sm">
           <CardHeader><CardTitle className="text-base">Customer Segment</CardTitle></CardHeader>
           <CardContent>

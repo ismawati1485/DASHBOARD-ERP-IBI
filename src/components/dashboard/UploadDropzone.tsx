@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { UploadCloud, FileSpreadsheet, X } from "lucide-react";
 
+// this is a example of a file upload component
 export function UploadDropzone({
   title = "Upload Production Analysis",
   description = "Drag & drop file Excel atau klik untuk memilih file.",
