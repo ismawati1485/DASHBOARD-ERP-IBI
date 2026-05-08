@@ -10,18 +10,20 @@ export function PageHeader({ title, description, crumbs }: { title: string; desc
         <Link to="/" className="flex items-center gap-1 hover:text-foreground">
           <Home className="h-3 w-3" />
         </Link>
-        {crumbs.map((c, i) => (
-          <span key={i} className="flex items-center gap-1">
-            <ChevronRight className="h-3 w-3" />
-            {c.to ? (
-              <Link to={c.to} className="hover:text-foreground">
-                {c.label}
-              </Link>
-            ) : (
-              <span className="text-foreground">{c.label}</span>
-            )}
-          </span>
-        ))}
+        {crumbs.map((c, i) => {
+          return (
+            <span key={i} className="flex items-center gap-1">
+              <ChevronRight className="h-3 w-3" />
+              {c.to ? (
+                <Link to={c.to} className="hover:text-foreground">
+                  {c.label}
+                </Link>
+              ) : (
+                <span className="text-foreground">{c.label}</span>
+              )}
+            </span>
+          );
+        })}
       </nav>
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>

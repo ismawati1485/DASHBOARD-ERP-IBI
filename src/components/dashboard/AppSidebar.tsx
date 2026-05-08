@@ -80,9 +80,6 @@ export function AppSidebar({ workspace }: { workspace: WorkspaceConfig }) {
                 <span className="font-medium text-white">
                   {session.username}
                 </span>
-                <Badge className="mt-1 w-fit bg-white text-[#4361EE] text-[10px] capitalize hover:bg-white">
-                  {session.role}
-                </Badge>
               </div>
             </div>
           )}

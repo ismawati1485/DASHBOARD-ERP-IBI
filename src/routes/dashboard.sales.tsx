@@ -13,7 +13,7 @@ import { salesKpi, salesPie, topItemSales, topLostSales, topDrivers, trenPenjual
 const fmtIDR = (n: number) =>
   new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(n);
 
-const PIE_COLORS = ["#4361EE", "#E2E8F0"];
+const PIE_COLORS = ["#4361EE", "#7da0eb"];
 const alasanVariant = (a: string): "default" | "secondary" | "destructive" | "outline" => {
   if (a === "Harga Tinggi") return "destructive";
   if (a === "Stok Kosong") return "secondary";

@@ -20,7 +20,7 @@ export type WorkspaceConfig = {
   items: MenuItem[];
 };
 
-export const MAIN_WORKSPACE: WorkspaceConfig = {
+export const OPERATION_WORKSPACE: WorkspaceConfig = {
   label: "Operations",
   basePath: "/dashboard",
   items: [
@@ -51,19 +51,19 @@ export const TAX_WORKSPACE: WorkspaceConfig = {
   ],
 };
 
-export const FINANCE_WORKSPACE: WorkspaceConfig = {
+export const FINANCE_WORKSPACE: WorkspaceConfig ={
   label: "Finance",
   basePath: "/finance",
   items: [
     { title: "Overview", url: "/finance", icon: LayoutDashboard },
     { title: "Cashflow", url: "/finance/cashflow", icon: Wallet },
     { title: "Daftar Tugas", url: "/finance/daftar-tugas", icon: ListChecks },
-  ],
+  ],  
 };
 
 export function workspaceForRole(role: Role): WorkspaceConfig {
   if (role === "accounting") return ACCOUNTING_WORKSPACE;
   if (role === "tax") return TAX_WORKSPACE;
   if (role === "finance") return FINANCE_WORKSPACE;
-  return MAIN_WORKSPACE;
+  return OPERATION_WORKSPACE;
 }

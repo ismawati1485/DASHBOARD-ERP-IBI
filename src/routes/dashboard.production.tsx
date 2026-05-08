@@ -17,7 +17,7 @@ const fmtIDR = (n: number) =>
   new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(n);
 const fmtNum = (n: number) => new Intl.NumberFormat("id-ID").format(n);
 
-const PIE_COLORS = ["#4361EE", "#5B7CFA", "#7C9CFF", "#F59E0B", "#EF4444"];
+const PIE_COLORS = ["#4361EE",   "#4895EF","#1E3A8A", "#2563EB", "#3B82F6", "#60A5FA"];
 
 function ProductionPage() {
   return (
@@ -67,7 +67,7 @@ function ProductionPage() {
                   />
                   <Legend />
                   <Bar yAxisId="left" dataKey="totalProduksi" name="Total Produksi" fill="#4361EE" radius={[6, 6, 0, 0]} />
-                  <Bar yAxisId="right" dataKey="totalCogm" name="Total COGM" fill="#5B7CFA" radius={[6, 6, 0, 0]} />
+                  <Bar yAxisId="right" dataKey="totalCogm" name="Total COGM" fill="#1E3A8A" radius={[6, 6, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>

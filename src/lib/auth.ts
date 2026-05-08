@@ -9,7 +9,7 @@ export type Session = { username: string; role: Role };
 export function login(username: string, _password: string): Session | null {
   const role = username.toLowerCase().trim() as Role;
   if (!VALID_ROLES.includes(role)) return null;
-  const session: Session = { username, role };
+  const session: Session = { username: username.trim(), role };
   if (typeof window !== "undefined") localStorage.setItem(KEY, JSON.stringify(session));
   return session;
 }

@@ -16,7 +16,7 @@ const fmtDate = (s: string) =>
   new Date(s).toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" });
 const fmtNum = (n: number) => new Intl.NumberFormat("id-ID").format(n);
 
-const PIE_COLORS = ["#4361EE", "#5B7CFA", "#7C9CFF", "#9DB5FF", "#3A86FF", "#2E5BDB", "#BFD0FF"];
+const PIE_COLORS = ["#4361EE", "#43b8d2", "#9442f2", "#ed39e4"];
 
 const statusVariant = (s: StockStatus): "default" | "secondary" | "destructive" => {
   if (s === "Safe") return "secondary";
@@ -149,7 +149,7 @@ function InventoryPage() {
                 <YAxis stroke="#64748B" fontSize={12} />
                 <Tooltip />
                 <Legend />
-                <Bar dataKey="salesOrder" name="Sales Order" fill="#5B7CFA" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="salesOrder" name="Sales Order" fill="#7da0eb" radius={[4, 4, 0, 0]} />
                 <Bar dataKey="salesInvoice" name="Sales Invoice" fill="#4361EE" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
