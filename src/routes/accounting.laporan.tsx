@@ -7,6 +7,9 @@ import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Search } from "lucide-react";
 import { arVsAp, type ArApRow } from "@/data/accounting";
+import { CompanyFilter, DEFAULT_COMPANY, filterByCompany } from "@/components/filters/CompanyFilter";
+import { MonthFilter, DEFAULT_MONTH } from "@/components/filters/MonthFilter";
+import { FiltersBar } from "@/components/filters/FiltersBar";
 import { fmtIDR } from "@/lib/format";
 
 const statusClass: Record<ArApRow["status"], string> = {
@@ -16,12 +19,15 @@ const statusClass: Record<ArApRow["status"], string> = {
 };
 
 function LaporanPage() {
+  const [companyId, setCompanyId] = useState(DEFAULT_COMPANY);
+  const [month, setMonth] = useState(DEFAULT_MONTH);
   const [q, setQ] = useState("");
+
   const filtered = useMemo(() => {
+    const rows = filterByCompany(arVsAp, companyId);
     const s = q.toLowerCase().trim();
-    if (!s) return arVsAp;
-    return arVsAp.filter((r) => r.deptAr.toLowerCase().includes(s) || r.deptAp.toLowerCase().includes(s));
-  }, [q]);
+    return s ? rows.filter((r) => r.deptAr.toLowerCase().includes(s) || r.deptAp.toLowerCase().includes(s)) : rows;
+  }, [companyId, q]);
 
   return (
     <div>
@@ -30,18 +36,17 @@ function LaporanPage() {
         description="Laporan akuntansi: piutang (AR) vs hutang (AP) per departemen."
         crumbs={[{ label: "Accounting", to: "/accounting" }, { label: "Laporan" }]}
       />
+      <FiltersBar>
+        <CompanyFilter value={companyId} onChange={setCompanyId} />
+        <MonthFilter value={month} onChange={setMonth} />
+      </FiltersBar>
 
       <Card className="rounded-xl shadow-sm">
         <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <CardTitle className="text-base">AR vs AP</CardTitle>
           <div className="relative w-full sm:w-72">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-              placeholder="Cari departemen..."
-              className="pl-8"
-            />
+            <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Cari departemen..." className="pl-8" />
           </div>
         </CardHeader>
         <CardContent>
@@ -67,11 +72,7 @@ function LaporanPage() {
                   </TableRow>
                 ))}
                 {filtered.length === 0 && (
-                  <TableRow>
-                    <TableCell colSpan={5} className="py-6 text-center text-sm text-muted-foreground">
-                      Tidak ada data.
-                    </TableCell>
-                  </TableRow>
+                  <TableRow><TableCell colSpan={5} className="py-6 text-center text-sm text-muted-foreground">Tidak ada data.</TableCell></TableRow>
                 )}
               </TableBody>
             </Table>
@@ -82,6 +83,4 @@ function LaporanPage() {
   );
 }
 
-export const Route = createFileRoute("/accounting/laporan")({
-  component: LaporanPage,
-});
+export const Route = createFileRoute("/accounting/laporan")({ component: LaporanPage });
