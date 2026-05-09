@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useMemo, useState } from "react";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -8,10 +9,10 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Legend,
 } from "recharts";
 import { TrendingUp, Target, DollarSign, Percent } from "lucide-react";
-import { salesKpi, salesPie, topItemSales, topLostSales, topDrivers, trenPenjualan } from "@/data/sales";
-
-const fmtIDR = (n: number) =>
-  new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(n);
+import { salesKpiByCompany, topItemSales, topLostSales, topDrivers, trenPenjualan } from "@/data/sales";
+import { CompanyFilter, DEFAULT_COMPANY, filterByCompany } from "@/components/filters/CompanyFilter";
+import { FiltersBar } from "@/components/filters/FiltersBar";
+import { fmtIDR } from "@/lib/format";
 
 const PIE_COLORS = ["#4361EE", "#7da0eb"];
 const alasanVariant = (a: string): "default" | "secondary" | "destructive" | "outline" => {
@@ -20,16 +21,42 @@ const alasanVariant = (a: string): "default" | "secondary" | "destructive" | "ou
   return "outline";
 };
 
-{/* Status Badge berdasarkan alasan Lost sales */}
 function SalesPage() {
-  const persen = salesKpi.persenTercapai;
-  const realisasi = salesKpi.realisasi;
+  const [companyId, setCompanyId] = useState(DEFAULT_COMPANY);
+
+  const kpi = useMemo(() => {
+    const rows = filterByCompany(salesKpiByCompany, companyId);
+    const totalPenjualan = rows.reduce((a, b) => a + b.totalPenjualan, 0);
+    const target = rows.reduce((a, b) => a + b.target, 0);
+    return { totalPenjualan, target, realisasi: totalPenjualan - target, persen: target ? (totalPenjualan / target) * 100 : 0 };
+  }, [companyId]);
+
+  const itemRows = useMemo(() => filterByCompany(topItemSales, companyId), [companyId]);
+  const lostRows = useMemo(() => filterByCompany(topLostSales, companyId), [companyId]);
+  const driverRows = useMemo(() => filterByCompany(topDrivers, companyId), [companyId]);
+
+  const trenRows = useMemo(() => {
+    const rows = filterByCompany(trenPenjualan, companyId);
+    const grouped: Record<string, { bulan: string; DB001: number; DB002: number }> = {};
+    rows.forEach((r) => {
+      grouped[r.bulan] ??= { bulan: r.bulan, DB001: 0, DB002: 0 };
+      grouped[r.bulan].DB001 += r.DB001;
+      grouped[r.bulan].DB002 += r.DB002;
+    });
+    const order = ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"];
+    return order.map((b) => grouped[b]).filter(Boolean);
+  }, [companyId]);
+
+  const pieData = [
+    { name: "Tercapai", value: kpi.totalPenjualan },
+    { name: "Sisa Target", value: Math.max(kpi.target - kpi.totalPenjualan, 0) },
+  ];
 
   const kpis = [
-    { label: "Total Penjualan", value: fmtIDR(salesKpi.totalPenjualan), icon: DollarSign },
-    { label: "Target", value: fmtIDR(salesKpi.target), icon: Target },
-    { label: "Realisasi", value: fmtIDR(realisasi), icon: TrendingUp, accent: realisasi < 0 ? "text-destructive" : "text-emerald-600" },
-    { label: "% Tercapai", value: `${persen.toFixed(1)}%`, icon: Percent, accent: "text-primary" },
+    { label: "Total Penjualan", value: fmtIDR(kpi.totalPenjualan), icon: DollarSign },
+    { label: "Target", value: fmtIDR(kpi.target), icon: Target },
+    { label: "Realisasi", value: fmtIDR(kpi.realisasi), icon: TrendingUp, accent: kpi.realisasi < 0 ? "text-destructive" : "text-emerald-600" },
+    { label: "% Tercapai", value: `${kpi.persen.toFixed(1)}%`, icon: Percent, accent: "text-primary" },
   ];
 
   return (
@@ -39,6 +66,7 @@ function SalesPage() {
         description="Ringkasan kinerja penjualan, target, dan tren bisnis."
         crumbs={[{ label: "Dashboard", to: "/dashboard" }, { label: "Sales" }]}
       />
+      <FiltersBar><CompanyFilter value={companyId} onChange={setCompanyId} /></FiltersBar>
 
       <div className="grid gap-4 lg:grid-cols-3">
         <div className="grid gap-4 sm:grid-cols-2 lg:col-span-2">
@@ -48,24 +76,19 @@ function SalesPage() {
                 <CardTitle className="text-sm font-medium text-muted-foreground">{k.label}</CardTitle>
                 <k.icon className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
-              <CardContent>
-                <div className={`text-2xl font-semibold ${k.accent ?? ""}`}>{k.value}</div>
-              </CardContent>
+              <CardContent><div className={`text-2xl font-semibold ${k.accent ?? ""}`}>{k.value}</div></CardContent>
             </Card>
           ))}
         </div>
-{/* Menampilkan KPI dalam bentuk card */}
 
         <Card className="rounded-xl shadow-sm">
-          <CardHeader>
-            <CardTitle className="text-base">Pencapaian Target</CardTitle>
-          </CardHeader>
+          <CardHeader><CardTitle className="text-base">Pencapaian Target</CardTitle></CardHeader>
           <CardContent>
             <div className="h-56">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
-                  <Pie data={salesPie} dataKey="value" nameKey="name" innerRadius={50} outerRadius={80} paddingAngle={2}>
-                    {salesPie.map((_, i) => <Cell key={i} fill={PIE_COLORS[i]} />)}
+                  <Pie data={pieData} dataKey="value" nameKey="name" innerRadius={50} outerRadius={80} paddingAngle={2}>
+                    {pieData.map((_, i) => <Cell key={i} fill={PIE_COLORS[i]} />)}
                   </Pie>
                   <Tooltip formatter={(v: number) => fmtIDR(v)} />
                   <Legend />
@@ -77,13 +100,11 @@ function SalesPage() {
       </div>
 
       <Card className="mt-6 rounded-xl shadow-sm">
-        <CardHeader>
-          <CardTitle className="text-base">Tren Penjualan per Tahun</CardTitle>
-        </CardHeader>
+        <CardHeader><CardTitle className="text-base">Tren Penjualan per Tahun</CardTitle></CardHeader>
         <CardContent>
           <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={trenPenjualan}>
+              <LineChart data={trenRows}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" />
                 <XAxis dataKey="bulan" stroke="#64748B" fontSize={12} />
                 <YAxis stroke="#64748B" fontSize={12} />
@@ -110,13 +131,14 @@ function SalesPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {topItemSales.map((it) => (
+                {itemRows.map((it) => (
                   <TableRow key={it.itemDesc}>
                     <TableCell className="font-medium">{it.itemDesc}</TableCell>
                     <TableCell className="text-right tabular-nums">{it.qty.toLocaleString("id-ID")}</TableCell>
                     <TableCell className="text-right tabular-nums">{fmtIDR(it.totalPenjualan)}</TableCell>
                   </TableRow>
                 ))}
+                {itemRows.length === 0 && <TableRow><TableCell colSpan={3} className="text-center text-sm text-muted-foreground py-6">Tidak ada data.</TableCell></TableRow>}
               </TableBody>
             </Table>
           </CardContent>
@@ -133,12 +155,13 @@ function SalesPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {topDrivers.map((d) => (
+                {driverRows.map((d) => (
                   <TableRow key={d.driverName}>
                     <TableCell className="font-medium">{d.driverName}</TableCell>
                     <TableCell className="text-right tabular-nums">{d.totalTonase.toLocaleString("id-ID")}</TableCell>
                   </TableRow>
                 ))}
+                {driverRows.length === 0 && <TableRow><TableCell colSpan={2} className="text-center text-sm text-muted-foreground py-6">Tidak ada data.</TableCell></TableRow>}
               </TableBody>
             </Table>
           </CardContent>
@@ -157,13 +180,14 @@ function SalesPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {topLostSales.map((l) => (
+              {lostRows.map((l) => (
                 <TableRow key={l.customerName}>
                   <TableCell className="font-medium">{l.customerName}</TableCell>
                   <TableCell className="text-right tabular-nums">{fmtIDR(l.totalPenjualan)}</TableCell>
                   <TableCell><Badge variant={alasanVariant(l.alasan)}>{l.alasan}</Badge></TableCell>
                 </TableRow>
               ))}
+              {lostRows.length === 0 && <TableRow><TableCell colSpan={3} className="text-center text-sm text-muted-foreground py-6">Tidak ada data.</TableCell></TableRow>}
             </TableBody>
           </Table>
         </CardContent>
@@ -172,6 +196,4 @@ function SalesPage() {
   );
 }
 
-export const Route = createFileRoute("/dashboard/sales")({
-  component: SalesPage,
-});
+export const Route = createFileRoute("/dashboard/sales")({ component: SalesPage });
