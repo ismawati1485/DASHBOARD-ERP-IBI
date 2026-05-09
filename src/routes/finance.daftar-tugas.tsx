@@ -1,9 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useMemo, useState } from "react";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { daftarTugas, type TaskStatus } from "@/data/finance";
+import { CompanyFilter, DEFAULT_COMPANY, filterByCompany } from "@/components/filters/CompanyFilter";
+import { FiltersBar } from "@/components/filters/FiltersBar";
 import { fmtIDR, fmtDateID } from "@/lib/format";
 
 const statusClass: Record<TaskStatus, string> = {
@@ -20,10 +23,9 @@ function dueClass(status: TaskStatus) {
 }
 
 function DaftarTugasPage() {
-  const counts = daftarTugas.reduce(
-    (acc, t) => ({ ...acc, [t.status]: (acc[t.status] ?? 0) + 1 }),
-    {} as Record<TaskStatus, number>,
-  );
+  const [companyId, setCompanyId] = useState(DEFAULT_COMPANY);
+  const tasks = useMemo(() => filterByCompany(daftarTugas, companyId), [companyId]);
+  const counts = tasks.reduce((acc, t) => ({ ...acc, [t.status]: (acc[t.status] ?? 0) + 1 }), {} as Record<TaskStatus, number>);
   const summary: TaskStatus[] = ["Upcoming", "Urgent", "Overdue", "Paid"];
 
   return (
@@ -33,6 +35,7 @@ function DaftarTugasPage() {
         description="Daftar reminder pembayaran dan jatuh tempo supplier."
         crumbs={[{ label: "Finance", to: "/finance" }, { label: "Daftar Tugas" }]}
       />
+      <FiltersBar><CompanyFilter value={companyId} onChange={setCompanyId} /></FiltersBar>
 
       <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {summary.map((s) => (
@@ -62,7 +65,7 @@ function DaftarTugasPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {daftarTugas.map((t) => (
+                {tasks.map((t) => (
                   <TableRow key={t.id}>
                     <TableCell className="font-medium">{t.supplier}</TableCell>
                     <TableCell><Badge variant="outline">{t.group}</Badge></TableCell>
@@ -72,6 +75,7 @@ function DaftarTugasPage() {
                     <TableCell><Badge className={statusClass[t.status]}>{t.status}</Badge></TableCell>
                   </TableRow>
                 ))}
+                {tasks.length === 0 && <TableRow><TableCell colSpan={6} className="text-center text-sm text-muted-foreground py-6">Tidak ada tugas.</TableCell></TableRow>}
               </TableBody>
             </Table>
           </div>
@@ -81,6 +85,4 @@ function DaftarTugasPage() {
   );
 }
 
-export const Route = createFileRoute("/finance/daftar-tugas")({
-  component: DaftarTugasPage,
-});
+export const Route = createFileRoute("/finance/daftar-tugas")({ component: DaftarTugasPage });

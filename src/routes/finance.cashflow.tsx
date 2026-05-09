@@ -1,10 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useMemo, useState } from "react";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { danaKeluar, danaMasuk, type CashflowRow } from "@/data/finance";
+import { CompanyFilter, DEFAULT_COMPANY, filterByCompany } from "@/components/filters/CompanyFilter";
+import { FiltersBar } from "@/components/filters/FiltersBar";
 import { fmtIDR } from "@/lib/format";
 
 type Tone = "good" | "warn" | "bad";
@@ -25,12 +28,7 @@ function tone(pct: number, kind: "achievement" | "cost"): Tone {
   return "good";
 }
 
-function CashflowTable({
-  title,
-  rows,
-  partyLabel,
-  kind,
-}: { title: string; rows: CashflowRow[]; partyLabel: string; kind: "achievement" | "cost" }) {
+function CashflowTable({ title, rows, partyLabel, kind }: { title: string; rows: CashflowRow[]; partyLabel: string; kind: "achievement" | "cost" }) {
   return (
     <Card className="rounded-xl shadow-sm">
       <CardHeader><CardTitle className="text-base">{title}</CardTitle></CardHeader>
@@ -69,6 +67,7 @@ function CashflowTable({
                   </TableRow>
                 );
               })}
+              {rows.length === 0 && <TableRow><TableCell colSpan={7} className="text-center text-sm text-muted-foreground py-6">Tidak ada data.</TableCell></TableRow>}
             </TableBody>
           </Table>
         </div>
@@ -78,6 +77,10 @@ function CashflowTable({
 }
 
 function CashflowPage() {
+  const [companyId, setCompanyId] = useState(DEFAULT_COMPANY);
+  const keluar = useMemo(() => filterByCompany(danaKeluar, companyId), [companyId]);
+  const masuk  = useMemo(() => filterByCompany(danaMasuk, companyId), [companyId]);
+
   return (
     <div>
       <PageHeader
@@ -85,15 +88,14 @@ function CashflowPage() {
         description="Realisasi dana keluar & masuk per departemen dan grup."
         crumbs={[{ label: "Finance", to: "/finance" }, { label: "Cashflow" }]}
       />
+      <FiltersBar><CompanyFilter value={companyId} onChange={setCompanyId} /></FiltersBar>
 
       <div className="grid gap-6">
-        <CashflowTable title="Dana Keluar" rows={danaKeluar} partyLabel="Supplier" kind="cost" />
-        <CashflowTable title="Dana Masuk" rows={danaMasuk} partyLabel="Customer" kind="achievement" />
+        <CashflowTable title="Dana Keluar" rows={keluar} partyLabel="Supplier" kind="cost" />
+        <CashflowTable title="Dana Masuk" rows={masuk} partyLabel="Customer" kind="achievement" />
       </div>
     </div>
   );
 }
 
-export const Route = createFileRoute("/finance/cashflow")({
-  component: CashflowPage,
-});
+export const Route = createFileRoute("/finance/cashflow")({ component: CashflowPage });
