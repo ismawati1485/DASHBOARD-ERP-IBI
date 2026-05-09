@@ -1,6 +1,5 @@
 import {
-  salesKpi,
-  salesPie,
+  salesKpiByCompany,
   topItemSales,
   topLostSales,
   topDrivers,
@@ -9,8 +8,7 @@ import {
 
 export async function getSalesDashboard() {
   return {
-    salesKpi,
-    salesPie,
+    salesKpiByCompany,
     topItemSales,
     topLostSales,
     topDrivers,
