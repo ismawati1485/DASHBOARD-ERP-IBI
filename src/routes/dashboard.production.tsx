@@ -123,7 +123,7 @@ function ProductionPage() {
           </CardContent>
         </Card>
       </div>
-
+{/* Production Analysis Table */}
       <Card className="rounded-xl shadow-sm">
         <CardHeader>
           <CardTitle className="text-base">Production Analysis</CardTitle>

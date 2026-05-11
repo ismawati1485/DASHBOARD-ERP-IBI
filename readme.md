@@ -42,14 +42,14 @@ web akan berjalan di http://localhost:5173
 - Customer Dashboard UI 
 - Production Dashboard UI 
 - Inventory Dashboard UI 
+- Accounting Dashboard 
+- Finance Dashboard 
+- Tax Dashboard 
+- Company Filtering on dashboard sales 
+- Company filtering and search on dashboard inventory 
 
-# IN PROGRESS
-- Accounting Dashboard (bsk)
-- Finance Dashboard (bsk)
-- Tax Dashboard (bsk)
-- API Integration (snn)
+# IN PROGRESS 
+- API Integration
 - Excel upload integration for product analysis 
 - Integration with Backend
-- Company Filtering on dashboard sales (bsk)
-- Company filtering and search on dashboard inventory (bsk)
 - dont forget to add comments 

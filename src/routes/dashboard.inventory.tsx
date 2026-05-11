@@ -171,51 +171,6 @@ function InventoryPage() {
             value={companyId}
             onChange={setCompanyId}
           />
-
-          <Input
-            placeholder="Search product..."
-            value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
-              setPage(1);
-            }}
-            className="w-[250px]"
-          />
-
-          <Select
-            value={statusFilter}
-            onValueChange={(v) => {
-              setStatusFilter(v);
-              setPage(1);
-            }}
-          >
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Filter Status" />
-            </SelectTrigger>
-
-            <SelectContent>
-              <SelectItem value="all">
-                All Status
-              </SelectItem>
-
-              <SelectItem value="Safe">
-                Safe
-              </SelectItem>
-
-              <SelectItem value="Low Stock">
-                Low Stock
-              </SelectItem>
-
-              <SelectItem value="Critical">
-                Critical
-              </SelectItem>
-
-              <SelectItem value="Out of Stock">
-                Out of Stock
-              </SelectItem>
-              
-            </SelectContent>
-          </Select>
         </div>
       </FiltersBar>
 
@@ -532,6 +487,52 @@ function InventoryPage() {
           <CardTitle className="text-base">
             Stock List
           </CardTitle>
+
+          <div className="flex flex-wrap items-center gap-3">
+            <Input
+            placeholder="Search product..."
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(1);
+            }}
+            className="w-[250px]"
+          />
+
+          <Select
+            value={statusFilter}
+            onValueChange={(v) => {
+              setStatusFilter(v);
+              setPage(1);
+            }}
+          >
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Filter Status" />
+            </SelectTrigger>
+
+            <SelectContent>
+              <SelectItem value="all">
+                All Status
+              </SelectItem>
+
+              <SelectItem value="Safe">
+                Safe
+              </SelectItem>
+
+              <SelectItem value="Low Stock">
+                Low Stock
+              </SelectItem>
+
+              <SelectItem value="Critical">
+                Critical
+              </SelectItem>
+
+              <SelectItem value="Out of Stock">
+                Out of Stock
+              </SelectItem>
+            </SelectContent>
+          </Select>
+          </div>
         </CardHeader>
 
         <CardContent>
