@@ -22,6 +22,24 @@ function dueClass(status: TaskStatus) {
   return "text-foreground";
 }
 
+function getDaysLeft(date: string) {
+  const today = new Date();
+  const due = new Date(date);
+  const diff = due.getTime() - today.getTime();
+  return Math.ceil(diff / (1000*60*60*24));
+}
+
+function daysBadge(days: number) {
+  if (days <= 7) {
+    return "bg-rose-100 text-rose-700 hover:bg-rose-100";
+  }
+
+  if (days <= 14) {
+    return "bg-amber-100 text-amber-700 hover:bg-amber-100";
+  }
+
+  return "bg-emerald-100 text-emerald-700 hover:bg-emerald-100";
+}
 function DaftarTugasPage() {
   const [companyId, setCompanyId] = useState(DEFAULT_COMPANY);
   const tasks = useMemo(() => filterByCompany(daftarTugas, companyId), [companyId]);
@@ -65,16 +83,25 @@ function DaftarTugasPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {tasks.map((t) => (
+                {tasks.map((t) => {
+                  const daysLeft = getDaysLeft(t.jatuhTempo);
+                  return ( 
                   <TableRow key={t.id}>
                     <TableCell className="font-medium">{t.supplier}</TableCell>
                     <TableCell><Badge variant="outline">{t.group}</Badge></TableCell>
                     <TableCell>{fmtDateID(t.tanggal)}</TableCell>
-                    <TableCell className={dueClass(t.status)}>{fmtDateID(t.jatuhTempo)}</TableCell>
+                    <TableCell className={dueClass(t.status)}>
+                    <div className="flex items-center gap-2">
+                      <span>{fmtDateID(t.jatuhTempo)}</span>
+                      <Badge className={daysBadge(daysLeft)}>
+                        {daysLeft} Hari
+                      </Badge>
+                    </div>
+                  </TableCell>
                     <TableCell className="text-right tabular-nums">{fmtIDR(t.total)}</TableCell>
                     <TableCell><Badge className={statusClass[t.status]}>{t.status}</Badge></TableCell>
                   </TableRow>
-                ))}
+                )})}
                 {tasks.length === 0 && <TableRow><TableCell colSpan={6} className="text-center text-sm text-muted-foreground py-6">Tidak ada tugas.</TableCell></TableRow>}
               </TableBody>
             </Table>

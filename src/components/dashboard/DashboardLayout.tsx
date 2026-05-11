@@ -39,10 +39,6 @@ export function DashboardLayout({ allowedRoles, children }: { allowedRoles: Role
         <div className="flex flex-1 flex-col">
           <header className="sticky top-0 z-10 flex h-16 items-center gap-3 border-b bg-background/80 px-4 backdrop-blur md:px-6">
             <SidebarTrigger />
-            <div className="relative hidden flex-1 max-w-md md:block">
-              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input placeholder="Search…" className="pl-9" />
-            </div>
             <div className="ml-auto flex items-center gap-3">
               <button className="relative rounded-md p-2 hover:bg-accent">
                 <Bell className="h-4 w-4" />
@@ -56,5 +52,3 @@ export function DashboardLayout({ allowedRoles, children }: { allowedRoles: Role
     </SidebarProvider>
   );
 }
-
-// this is the main layout for the dashboard, it will check if the user is logged in and has the correct role to access the page, if not it will redirect to the login page or the correct dashboard page based on the users role

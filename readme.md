@@ -1,15 +1,24 @@
-!ERP DASHBOARD PT INDOBERKA INVESTAMA!
+# !ERP DASHBOARD PT INDOBERKA INVESTAMA!
 
 Modern Entrprise Resource Planning Dashboard built using React, TypeScript, Tailwind CSS, TanStack Router, Shadcn/ui and Recharts. 
 
 This project focuses on building a responsive and modular analytics dashboard for multiple enterprise divisions such as Sales, Customer, Inventory, Production, Accounting, Finance and Tax. 
 
-!FEATURES!
+# !FEATURES!
 
-!INSTALATIONS!
-npm i atau yarn i
+# !INSTALATIONS  DEPENDENCIES!
+npm i atau npm install 
+atau 
+yarn install 
 
-!TECH STCAK!
+# !DEVELOPMENT SERVER!
+npm run dev 
+atau 
+yarn dev 
+
+web akan berjalan di http://localhost:5173
+
+# !TECH STACK!
 - React 
 - TypeScript 
 - Vite 
@@ -22,9 +31,8 @@ npm i atau yarn i
 - Real-time Dashboard Data 
 
 
-!CURRENT STATUS!
-
-COMPLETED
+# !CURRENT STATUS!
+# COMPLETED
 - Authentication Structure
 - Role Grouping 
 - Sidebar Navigation
@@ -35,11 +43,13 @@ COMPLETED
 - Production Dashboard UI 
 - Inventory Dashboard UI 
 
-
-IN PROGRESS
-- Accounting Dashboard 
-- Finance Dashboard 
-- Tax Dashboard 
-- API Integration 
+# IN PROGRESS
+- Accounting Dashboard (bsk)
+- Finance Dashboard (bsk)
+- Tax Dashboard (bsk)
+- API Integration (snn)
 - Excel upload integration for product analysis 
 - Integration with Backend
+- Company Filtering on dashboard sales (bsk)
+- Company filtering and search on dashboard inventory (bsk)
+- dont forget to add comments 

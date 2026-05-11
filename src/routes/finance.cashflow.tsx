@@ -9,6 +9,7 @@ import { danaKeluar, danaMasuk, type CashflowRow } from "@/data/finance";
 import { CompanyFilter, DEFAULT_COMPANY, filterByCompany } from "@/components/filters/CompanyFilter";
 import { FiltersBar } from "@/components/filters/FiltersBar";
 import { fmtIDR } from "@/lib/format";
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts";
 
 type Tone = "good" | "warn" | "bad";
 const toneClass: Record<Tone, string> = {
@@ -16,6 +17,8 @@ const toneClass: Record<Tone, string> = {
   warn: "bg-amber-100 text-amber-700 hover:bg-amber-100",
   bad: "bg-rose-100 text-rose-700 hover:bg-rose-100",
 };
+
+const PIE_COLORS = ["#4361EE",   "#4895EF","#1E3A8A", "#2563EB", "#3B82F6", "#60A5FA"];
 
 function tone(pct: number, kind: "achievement" | "cost"): Tone {
   if (kind === "achievement") {
@@ -26,6 +29,40 @@ function tone(pct: number, kind: "achievement" | "cost"): Tone {
   if (pct >= 100) return "bad";
   if (pct >= 90) return "warn";
   return "good";
+}
+
+function CashflowPieChart({title, rows}: {title: string; rows: CashflowRow[]}) {
+  const chartData = rows.map((r) => ({name: r.dept, value: r.realisasi}));
+
+  return (
+    <Card className ="rounded-xl shadow-sm">
+      <CardHeader>
+        <CardTitle className="text-base">{title}</CardTitle>
+      </CardHeader>
+
+      <CardContent>
+        <div className="h-72">
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+            <Pie
+              data={chartData}
+              dataKey="value"
+              nameKey="name"
+              outerRadius={100}
+              label
+              >
+                {chartData.map((_, index) =>(
+                  <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
+                ))}
+            </Pie>
+            <Tooltip formatter={(value: number) => fmtIDR(value)} />
+            <Legend />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
+      </CardContent>
+    </Card>
+  );
 }
 
 function CashflowTable({ title, rows, partyLabel, kind }: { title: string; rows: CashflowRow[]; partyLabel: string; kind: "achievement" | "cost" }) {
@@ -90,11 +127,36 @@ function CashflowPage() {
       />
       <FiltersBar><CompanyFilter value={companyId} onChange={setCompanyId} /></FiltersBar>
 
-      <div className="grid gap-6">
-        <CashflowTable title="Dana Keluar" rows={keluar} partyLabel="Supplier" kind="cost" />
-        <CashflowTable title="Dana Masuk" rows={masuk} partyLabel="Customer" kind="achievement" />
+<div className="grid gap-4">
+  <div className="grid gap-4 lg:grid-cols-2">
+    <CashflowPieChart
+      title="Analisis Dana Keluar"
+      rows={keluar}
+    />
+
+    <CashflowTable
+      title="Dana Keluar"
+      rows={keluar}
+      partyLabel="Supplier"
+      kind="cost"
+    />
+  </div>
+
+  <div className="grid gap-4 lg:grid-cols-2">
+    <CashflowPieChart
+      title="Analisis Dana Masuk"
+      rows={masuk}
+    />
+
+    <CashflowTable
+      title="Dana Masuk"
+      rows={masuk}
+      partyLabel="Customer"
+      kind="achievement"
+    />
+  </div>
+</div>
       </div>
-    </div>
   );
 }
 

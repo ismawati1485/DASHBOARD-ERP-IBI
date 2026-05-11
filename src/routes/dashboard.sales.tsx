@@ -9,7 +9,7 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Legend,
 } from "recharts";
 import { TrendingUp, Target, DollarSign, Percent } from "lucide-react";
-import { salesKpiByCompany, topItemSales, topLostSales, topDrivers, trenPenjualan } from "@/data/sales";
+import { salesKpiByCompany, topItemSales, topLostSales, topDrivers, trenPenjualan, topSalesman} from "@/data/sales";
 import { CompanyFilter, DEFAULT_COMPANY, filterByCompany } from "@/components/filters/CompanyFilter";
 import { FiltersBar } from "@/components/filters/FiltersBar";
 import { fmtIDR } from "@/lib/format";
@@ -34,6 +34,7 @@ function SalesPage() {
   const itemRows = useMemo(() => filterByCompany(topItemSales, companyId), [companyId]);
   const lostRows = useMemo(() => filterByCompany(topLostSales, companyId), [companyId]);
   const driverRows = useMemo(() => filterByCompany(topDrivers, companyId), [companyId]);
+  const salesmanRows = useMemo(() => filterByCompany(topSalesman, companyId), [companyId]);
 
   const trenRows = useMemo(() => {
     const rows = filterByCompany(trenPenjualan, companyId);
@@ -117,83 +118,204 @@ function SalesPage() {
           </div>
         </CardContent>
       </Card>
+      
+{/* Top Item Sales */}
+{/* Top Item Sales & Top Salesman */}
+<div className="mt-6 grid gap-4 lg:grid-cols-2">
+  <Card className="rounded-xl shadow-sm">
+    <CardHeader>
+      <CardTitle className="text-base">Top Item Sales</CardTitle>
+    </CardHeader>
 
-      <div className="mt-6 grid gap-4 lg:grid-cols-2">
-        <Card className="rounded-xl shadow-sm">
-          <CardHeader><CardTitle className="text-base">Top Item Sales</CardTitle></CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Item Desc</TableHead>
-                  <TableHead className="text-right">Qty</TableHead>
-                  <TableHead className="text-right">Total Penjualan</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {itemRows.map((it) => (
-                  <TableRow key={it.itemDesc}>
-                    <TableCell className="font-medium">{it.itemDesc}</TableCell>
-                    <TableCell className="text-right tabular-nums">{it.qty.toLocaleString("id-ID")}</TableCell>
-                    <TableCell className="text-right tabular-nums">{fmtIDR(it.totalPenjualan)}</TableCell>
-                  </TableRow>
-                ))}
-                {itemRows.length === 0 && <TableRow><TableCell colSpan={3} className="text-center text-sm text-muted-foreground py-6">Tidak ada data.</TableCell></TableRow>}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
+    <CardContent>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Item Desc</TableHead>
+            <TableHead className="text-right">Qty</TableHead>
+            <TableHead className="text-right">
+              Total Penjualan
+            </TableHead>
+          </TableRow>
+        </TableHeader>
 
-        <Card className="rounded-xl shadow-sm">
-          <CardHeader><CardTitle className="text-base">Top Driver</CardTitle></CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Driver Name</TableHead>
-                  <TableHead className="text-right">Total Tonase (ton)</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {driverRows.map((d) => (
-                  <TableRow key={d.driverName}>
-                    <TableCell className="font-medium">{d.driverName}</TableCell>
-                    <TableCell className="text-right tabular-nums">{d.totalTonase.toLocaleString("id-ID")}</TableCell>
-                  </TableRow>
-                ))}
-                {driverRows.length === 0 && <TableRow><TableCell colSpan={2} className="text-center text-sm text-muted-foreground py-6">Tidak ada data.</TableCell></TableRow>}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
-      </div>
+        <TableBody>
+          {itemRows.map((it) => (
+            <TableRow key={it.itemDesc}>
+              <TableCell className="font-medium">
+                {it.itemDesc}
+              </TableCell>
 
-      <Card className="mt-6 rounded-xl shadow-sm">
-        <CardHeader><CardTitle className="text-base">Top Lost Sales</CardTitle></CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Customer Name</TableHead>
-                <TableHead className="text-right">Total Penjualan</TableHead>
-                <TableHead>Indikator Alasan</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {lostRows.map((l) => (
-                <TableRow key={l.customerName}>
-                  <TableCell className="font-medium">{l.customerName}</TableCell>
-                  <TableCell className="text-right tabular-nums">{fmtIDR(l.totalPenjualan)}</TableCell>
-                  <TableCell><Badge variant={alasanVariant(l.alasan)}>{l.alasan}</Badge></TableCell>
-                </TableRow>
-              ))}
-              {lostRows.length === 0 && <TableRow><TableCell colSpan={3} className="text-center text-sm text-muted-foreground py-6">Tidak ada data.</TableCell></TableRow>}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-    </div>
+              <TableCell className="text-right tabular-nums">
+                {it.qty.toLocaleString("id-ID")}
+              </TableCell>
+
+              <TableCell className="text-right tabular-nums">
+                {fmtIDR(it.totalPenjualan)}
+              </TableCell>
+            </TableRow>
+          ))}
+
+          {itemRows.length === 0 && (
+            <TableRow>
+              <TableCell
+                colSpan={3}
+                className="text-center text-sm text-muted-foreground py-6"
+              >
+                Tidak ada data.
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+    </CardContent>
+  </Card>
+
+  <Card className="rounded-xl shadow-sm">
+    <CardHeader>
+      <CardTitle className="text-base">Top Salesman</CardTitle>
+    </CardHeader>
+
+    <CardContent>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Salesman Name</TableHead>
+            <TableHead className="text-right">
+              Total Penjualan
+            </TableHead>
+          </TableRow>
+        </TableHeader>
+
+        <TableBody>
+          {salesmanRows.map((s) => (
+            <TableRow key={s.salesmanName}>
+              <TableCell className="font-medium">
+                {s.salesmanName}
+              </TableCell>
+
+              <TableCell className="text-right tabular-nums">
+                {fmtIDR(s.totalPenjualan)}
+              </TableCell>
+            </TableRow>
+          ))}
+
+          {salesmanRows.length === 0 && (
+            <TableRow>
+              <TableCell
+                colSpan={2}
+                className="text-center text-sm text-muted-foreground py-6"
+              >
+                Tidak ada data.
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+    </CardContent>
+  </Card>
+</div>
+
+{/* Top Driver & Top Lost Sales */}
+<div className="mt-6 grid gap-4 lg:grid-cols-2">
+  <Card className="rounded-xl shadow-sm">
+    <CardHeader>
+      <CardTitle className="text-base">Top Driver</CardTitle>
+    </CardHeader>
+
+    <CardContent>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Driver Name</TableHead>
+            <TableHead className="text-right">
+              Total Tonase (ton)
+            </TableHead>
+          </TableRow>
+        </TableHeader>
+
+        <TableBody>
+          {driverRows.map((d) => (
+            <TableRow key={d.driverName}>
+              <TableCell className="font-medium">
+                {d.driverName}
+              </TableCell>
+
+              <TableCell className="text-right tabular-nums">
+                {d.totalTonase.toLocaleString("id-ID")}
+              </TableCell>
+            </TableRow>
+          ))}
+
+          {driverRows.length === 0 && (
+            <TableRow>
+              <TableCell
+                colSpan={2}
+                className="text-center text-sm text-muted-foreground py-6"
+              >
+                Tidak ada data.
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+    </CardContent>
+  </Card>
+
+  <Card className="rounded-xl shadow-sm">
+    <CardHeader>
+      <CardTitle className="text-base">Top Lost Sales</CardTitle>
+    </CardHeader>
+
+    <CardContent>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Customer Name</TableHead>
+            <TableHead className="text-right">
+              Total Penjualan
+            </TableHead>
+            <TableHead>Indikator Alasan</TableHead>
+          </TableRow>
+        </TableHeader>
+
+        <TableBody>
+          {lostRows.map((l) => (
+            <TableRow key={l.customerName}>
+              <TableCell className="font-medium">
+                {l.customerName}
+              </TableCell>
+
+              <TableCell className="text-right tabular-nums">
+                {fmtIDR(l.totalPenjualan)}
+              </TableCell>
+
+              <TableCell>
+                <Badge variant={alasanVariant(l.alasan)}>
+                  {l.alasan}
+                </Badge>
+              </TableCell>
+            </TableRow>
+          ))}
+
+          {lostRows.length === 0 && (
+            <TableRow>
+              <TableCell
+                colSpan={3}
+                className="text-center text-sm text-muted-foreground py-6"
+              >
+                Tidak ada data.
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+    </CardContent>
+  </Card>
+</div>
+</div>
+
   );
 }
-
 export const Route = createFileRoute("/dashboard/sales")({ component: SalesPage });
+
