@@ -40,50 +40,48 @@ AMBIL PAGE ${page}
 
       for (const item of data) {
 
-        await pool.query(
-          `
-          INSERT INTO inventory (
-            inventory_id,
-            kode_item,
-            nama_barang,
-            kode_kategori,
-            nama_kategori,
-            satuan,
-            part_number,
-            kode_merk,
-            nama_merk,
-            harga_jual,
-            created_at
-          )
-          VALUES (
-            $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,NOW()
-          )
+await pool.query(
+  `
+  INSERT INTO inventory (
+    inventory_id,
+    kode_item,
+    nama_barang,
+    kode_kategori,
+    nama_kategori,
+    satuan,
+    part_number,
+    kode_merk,
+    harga_jual,
+    created_at
+  )
+  VALUES (
+    $1,$2,$3,$4,$5,$6,$7,$8,$9,NOW()
+  )
 
-          ON CONFLICT (inventory_id)
-          DO UPDATE SET
-            kode_item = EXCLUDED.kode_item,
-            nama_barang = EXCLUDED.nama_barang,
-            kode_kategori = EXCLUDED.kode_kategori,
-            nama_kategori = EXCLUDED.nama_kategori,
-            satuan = EXCLUDED.satuan,
-            part_number = EXCLUDED.part_number,
-            kode_merk = EXCLUDED.kode_merk,
-            nama_merk = EXCLUDED.nama_merk,
-            harga_jual = EXCLUDED.harga_jual
-          `,
-          [
-            item.inventoryId,
-            item.kodeItem,
-            item.namaBarang,
-            item.kodeKategory,
-            item.namaKategory,
-            item.kodeSatuan,
-            item.partNumber,
-            item.kodeMerk,
-            item.namaMerk,
-            item.hargaJual,
-          ]
-        );
+  ON CONFLICT (inventory_id)
+
+  DO UPDATE SET
+    kode_item = EXCLUDED.kode_item,
+    nama_barang = EXCLUDED.nama_barang,
+    kode_kategori = EXCLUDED.kode_kategori,
+    nama_kategori = EXCLUDED.nama_kategori,
+    satuan = EXCLUDED.satuan,
+    part_number = EXCLUDED.part_number,
+    kode_merk = EXCLUDED.kode_merk,
+    harga_jual = EXCLUDED.harga_jual
+  `,
+  [
+    item.inventoryId,
+    item.kodeItem,
+    item.namaBarang,
+    item.kodeKategory,
+    item.namaKategory,
+    item.kodeSatuan,
+    item.partNumber,
+    item.kodeMerk,
+    item.hargaJual,
+  ]
+);
 
       }
 

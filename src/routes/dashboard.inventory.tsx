@@ -83,6 +83,8 @@ const PIE_COLORS = [
   "#1E3A8A",
 ];
 
+const LIMIT = 50;
+
 const statusVariant = (
   s: StockStatus
 ): "default" | "secondary" | "destructive" => {
@@ -94,6 +96,7 @@ const statusVariant = (
 };
 
 function InventoryPage() {
+
   const [companyId, setCompanyId] =
     useState(DEFAULT_COMPANY);
 
@@ -103,9 +106,13 @@ function InventoryPage() {
   const [statusFilter, setStatusFilter] =
     useState("all");
 
-  const [page, setPage] = useState(1);
+  const [page, setPage] =
+    useState(1);
 
-  // REAL API DATA
+  const [totalPages, setTotalPages] =
+    useState(1);
+
+  // REAL DATA
   const [stockList, setStockList] =
     useState<any[]>([]);
 
@@ -113,50 +120,106 @@ function InventoryPage() {
   const [loading, setLoading] =
     useState(false);
 
+  // =========================
   // FETCH INVENTORY
-  useEffect(() => {
-    loadInventory();
-  }, []);
+  // =========================
 
-  const loadInventory = async () => {
+  useEffect(() => {
+    loadInventory(page, search);
+  }, [page, search]);
+
+  const loadInventory = async (
+    currentPage = 1,
+    currentSearch = ""
+  ) => {
+
     try {
+
       setLoading(true);
 
-      const data = await getStockList();
+      // API CALL
+      const res =
+        await getStockList(
+          currentPage,
+          LIMIT,
+          currentSearch
+        );
 
       console.log(
         "REAL INVENTORY:",
-        data
+        res
       );
 
-      const mapped = data.map(
+      // AMBIL ARRAY DATA
+      const rows = res.data || [];
+
+      // MAPPING
+      const mapped = rows.map(
         (item: any) => ({
-          kodeItem: item.kodeItem,
+
+          kodeItem:
+            item.kode_item,
 
           namaBarang:
-            item.namaBarang,
+            item.nama_barang,
 
           qtyGudang:
-            item.qtyAvailable || 0,
+            item.qty_ready || 0,
 
+          // PART NUMBER
           serialCode:
-            item.partNumber || "-",
+            item.part_number || "-",
+
+          satuan:
+            item.satuan || "-",
+
+          hargaJual:
+            item.harga_jual || 0,
+
+          // QTY READY / SIAP JUAL
+          qtySiapJual:
+            item.qty_ready || 0,
+
+          // QTY BACK ORDER SALES ORDER
+          // BELUM ADA DARI API
+          qtyBoSo:
+            item.qty_bo_so || 0,
+
+          // BELUM ADA DARI API
+          lastStockIn:
+            item.last_stock_in || "-",
+
+          // BELUM ADA DARI API
+          agingStock:
+            item.aging_stock_days || "-",
 
           statusStock:
             getStockStatus(
-              item.qtyAvailable || 0
+              item.qty_ready || 0
             ),
+
         })
       );
 
+      // SET DATA
       setStockList(mapped);
+
+      // TOTAL PAGE
+      setTotalPages(
+        res.totalPages || 1
+      );
+
     } catch (error) {
+
       console.error(
         "LOAD INVENTORY ERROR:",
         error
       );
+
     } finally {
+
       setLoading(false);
+
     }
   };
 
@@ -264,32 +327,8 @@ function InventoryPage() {
       statusFilter,
     ]);
 
-  // =========================
-  // PAGINATION
-  // =========================
 
-  const ITEMS_PER_PAGE = 20;
-
-  const paginatedProducts =
-    useMemo(() => {
-      const start =
-        (page - 1) *
-        ITEMS_PER_PAGE;
-
-      return filteredProducts.slice(
-        start,
-        start + ITEMS_PER_PAGE
-      );
-    }, [filteredProducts, page]);
-
-  const totalPages = Math.ceil(
-    filteredProducts.length /
-      ITEMS_PER_PAGE
-  );
-
-  // =========================
   // PIE CHART
-  // =========================
 
   const totalItems = cats.reduce(
     (a, b) => a + b.value,
@@ -348,7 +387,9 @@ function InventoryPage() {
                   <TableHead>
                     Item Desc
                   </TableHead>
-
+                  <TableHead>
+                      Category
+                    </TableHead>
                   <TableHead className="text-right">
                     Qty
                   </TableHead>
@@ -636,11 +677,11 @@ function InventoryPage() {
               placeholder="Search product..."
               value={search}
               onChange={(e) => {
-                setSearch(
-                  e.target.value
-                );
+
+                setSearch(e.target.value);
 
                 setPage(1);
+
               }}
               className="w-[250px]"
             />
@@ -712,14 +753,31 @@ function InventoryPage() {
                       Qty Gudang
                     </TableHead>
 
+                    <TableHead className="text-right">
+                      Qty BO.SO
+                    </TableHead>
+
+                    <TableHead className="text-right">
+                      Qty Siap Jual
+                    </TableHead>
+
+                    <TableHead>
+                      Last Stock In
+                    </TableHead>
+
+                    <TableHead>
+                      Aging Stock
+                    </TableHead>
+
                     <TableHead>
                       Status
                     </TableHead>
+                    
                   </TableRow>
                 </TableHeader>
 
                 <TableBody>
-                  {paginatedProducts.map(
+                  {stockList.map(
                     (
                       s: any,
                       idx
@@ -731,10 +789,7 @@ function InventoryPage() {
                         }
                       >
                         <TableCell>
-                          {(page - 1) *
-                            ITEMS_PER_PAGE +
-                            idx +
-                            1}
+                          {(page - 1) * LIMIT + idx + 1}
                         </TableCell>
 
                         <TableCell className="font-mono text-xs">
@@ -748,7 +803,6 @@ function InventoryPage() {
                             s.namaBarang
                           }
                         </TableCell>
-
                         <TableCell className="font-mono text-xs">
                           {
                             s.serialCode
@@ -761,6 +815,27 @@ function InventoryPage() {
                           )}
                         </TableCell>
 
+                      <TableCell className="text-right">
+                        {fmtNum(s.qtyBoSo)}
+                      </TableCell>
+
+                      <TableCell className="text-right">
+                        {fmtNum(
+                          s.qtySiapJual
+                          )}
+                      </TableCell>
+
+                      <TableCell>
+                        {
+                        s.lastStockIn
+                        }
+                      </TableCell>
+
+                      <TableCell>
+                        {fmtNum(
+                          s.agingStock
+                          )}
+                      </TableCell>
                         <TableCell>
                           <Badge
                             variant={statusVariant(
@@ -778,41 +853,46 @@ function InventoryPage() {
                 </TableBody>
               </Table>
 
-              {/* PAGINATION */}
-              <div className="flex justify-end gap-2 mt-4">
-                <Button
-                  variant="outline"
-                  disabled={page === 1}
-                  onClick={() =>
-                    setPage(
-                      (p) => p - 1
-                    )
-                  }
-                >
-                  Prev
-                </Button>
+{/* PAGINATION */}
+<div className="flex justify-end gap-2 mt-4">
 
-                <div className="flex items-center px-3 text-sm">
-                  {page} /{" "}
-                  {totalPages || 1}
-                </div>
+  <Button
+    variant="outline"
+    disabled={page === 1}
+    onClick={() => {
 
-                <Button
-                  variant="outline"
-                  disabled={
-                    page ===
-                      totalPages ||
-                    totalPages === 0
-                  }
-                  onClick={() =>
-                    setPage(
-                      (p) => p + 1
-                    )
-                  }
-                >
-                  Next
-                </Button>
-              </div>
+      const prev =
+        page - 1;
+
+      setPage(prev);
+
+      loadInventory(
+        prev,
+        search
+      );
+
+    }}
+  >
+    Prev
+  </Button>
+
+  <div className="flex items-center px-3 text-sm">
+    {page} / {totalPages}
+  </div>
+
+  <Button
+    variant="outline"
+    disabled={
+      page === totalPages
+    }
+onClick={() => {
+  setPage((p) => p + 1);
+}}
+  >
+    Next
+  </Button>
+
+</div>
             </div>
           )}
         </CardContent>
