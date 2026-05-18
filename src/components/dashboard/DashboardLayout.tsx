@@ -7,6 +7,7 @@ import { workspaceForRole } from "@/data/menus";
 import { Bell, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 
+
 export function DashboardLayout({ allowedRoles, children }: { allowedRoles: Role[]; children?: ReactNode }) {
   const navigate = useNavigate();
   const [ready, setReady] = useState(false);
@@ -18,11 +19,18 @@ export function DashboardLayout({ allowedRoles, children }: { allowedRoles: Role
       navigate({ to: "/login" });
       return;
     }
-    if (!allowedRoles.includes(s.role)) {
-      navigate({ to: getDashboardPath(s.role) });
+    
+    if (
+  s.user.role !== "manager" &&
+  s.user.role !== "super_admin" &&
+  !allowedRoles.includes(s.user.role)
+)
+ {
+      navigate({ to: getDashboardPath(s.user.role) });
       return;
     }
-    setRole(s.role);
+    setRole(s.user.role);
+
     setReady(true);
   }, [navigate, allowedRoles]);
 

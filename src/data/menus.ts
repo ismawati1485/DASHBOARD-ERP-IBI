@@ -61,9 +61,56 @@ export const FINANCE_WORKSPACE: WorkspaceConfig ={
   ],  
 };
 
+export const MANAGER_WORKSPACE: WorkspaceConfig = {
+  label: "ERP Dashboard",
+  basePath: "/dashboard",
+  items: [
+
+    // OPERATIONS
+    { title: "Overview", url: "/dashboard", icon: LayoutDashboard },
+    { title: "Sales", url: "/dashboard/sales", icon: BarChart3 },
+    { title: "Customer", url: "/dashboard/customer", icon: Users },
+    { title: "Inventory", url: "/dashboard/inventory", icon: Package },
+    { title: "Production", url: "/dashboard/production", icon: Factory },
+
+    // ACCOUNTING
+    { title: "Accounting Overview", url: "/accounting", icon: LayoutDashboard },
+    { title: "Accounting Proyeksi", url: "/accounting/proyeksi", icon: TrendingUp },
+    { title: "Accounting Laporan", url: "/accounting/laporan", icon: FileText },
+
+    // FINANCE
+    { title: "Finance Overview", url: "/finance", icon: LayoutDashboard },
+    { title: "Cashflow", url: "/finance/cashflow", icon: Wallet },
+    { title: "Daftar Tugas", url: "/finance/daftar-tugas", icon: ListChecks },
+
+    // TAX
+    { title: "Tax Overview", url: "/tax", icon: LayoutDashboard },
+    { title: "Laporan Pajak", url: "/tax/laporan-pajak", icon: Receipt },
+  ],
+};
+
 export function workspaceForRole(role: Role): WorkspaceConfig {
-  if (role === "accounting") return ACCOUNTING_WORKSPACE;
-  if (role === "tax") return TAX_WORKSPACE;
-  if (role === "finance") return FINANCE_WORKSPACE;
+    // GLOBAL AKSES
+  if (role === "manager" || role === "super_admin") {
+    return MANAGER_WORKSPACE;
+  } 
+
+  // ACCOUNTING
+  if (role === "admin_accounting") {
+    return ACCOUNTING_WORKSPACE;
+  }
+
+  // TAX
+  if (role === "admin_tax") {
+    return TAX_WORKSPACE;
+  }
+
+  // FINANCE
+  if (role === "admin_finance") {
+    return FINANCE_WORKSPACE;
+  }
+
+  // DEFAULT → OPERATIONS
   return OPERATION_WORKSPACE;
+
 }

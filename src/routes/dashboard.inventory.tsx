@@ -1,9 +1,32 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+
+import { getStockStatus } from "@/lib/inventory-logic";
+
+import {
+  getTopStockItems,
+  getSlowMovingItems,
+  getStockSummary,
+} from "@/lib/inventory-analytics";
 
 import { PageHeader } from "@/components/dashboard/PageHeader";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -31,23 +54,21 @@ import {
 } from "recharts";
 
 import {
-  slowMoving,
-  topItemSalesInv,
-  salesPerCategory,
-  poVsReceiving,
-  soVsInvoice,
-  stockList,
-  type StockStatus,
-} from "@/data/inventory";
-
-import {
   CompanyFilter,
   DEFAULT_COMPANY,
-  filterByCompany,
 } from "@/components/filters/CompanyFilter";
 
 import { FiltersBar } from "@/components/filters/FiltersBar";
-import { fmtIDR, fmtDateID } from "@/lib/format";
+
+import { fmtIDR } from "@/lib/format";
+
+import { getStockList } from "@/services/inventory";
+
+type StockStatus =
+  | "Safe"
+  | "Low Stock"
+  | "Critical"
+  | "Out of Stock";
 
 const fmtNum = (n: number) =>
   new Intl.NumberFormat("id-ID").format(n);
@@ -67,88 +88,220 @@ const statusVariant = (
 ): "default" | "secondary" | "destructive" => {
   if (s === "Safe") return "secondary";
 
-  if (s === "Low Stock")
-    return "default";
+  if (s === "Low Stock") return "default";
 
   return "destructive";
 };
 
 function InventoryPage() {
-  const [companyId, setCompanyId] = useState(DEFAULT_COMPANY);
+  const [companyId, setCompanyId] =
+    useState(DEFAULT_COMPANY);
 
-  const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
+  const [search, setSearch] =
+    useState("");
+
+  const [statusFilter, setStatusFilter] =
+    useState("all");
+
   const [page, setPage] = useState(1);
 
-  const slow = useMemo(
-    () => filterByCompany(slowMoving, companyId),
-    [companyId]
-  );
+  // REAL API DATA
+  const [stockList, setStockList] =
+    useState<any[]>([]);
 
-  const tops = useMemo(
-    () => filterByCompany(topItemSalesInv, companyId),
-    [companyId]
-  );
+  // LOADING
+  const [loading, setLoading] =
+    useState(false);
 
-  const cats = useMemo(
-    () => filterByCompany(salesPerCategory, companyId),
-    [companyId]
-  );
+  // FETCH INVENTORY
+  useEffect(() => {
+    loadInventory();
+  }, []);
 
-  const pos = useMemo(
-    () => filterByCompany(poVsReceiving, companyId),
-    [companyId]
-  );
+  const loadInventory = async () => {
+    try {
+      setLoading(true);
 
-  const so = useMemo(
-    () => filterByCompany(soVsInvoice, companyId),
-    [companyId]
-  );
+      const data = await getStockList();
 
-  const stk = useMemo(
-    () => filterByCompany(stockList, companyId),
-    [companyId]
-  );
-
-  // FILTER SEARCH + STATUS
-  const filteredProducts = useMemo(() => {
-    return stk
-      .filter((p) => {
-        if (statusFilter === "all") return true;
-        return p.statusStock === statusFilter;
-      })
-      .filter((p) =>
-        p.itemDesc.toLowerCase().includes(search.toLowerCase())
+      console.log(
+        "REAL INVENTORY:",
+        data
       );
-  }, [stk, search, statusFilter]);
 
-  // PAGINATION
-  const ITEMS_PER_PAGE = 10;
+      const mapped = data.map(
+        (item: any) => ({
+          kodeItem: item.kodeItem,
 
-  const paginatedProducts = useMemo(() => {
-    const start = (page - 1) * ITEMS_PER_PAGE;
+          namaBarang:
+            item.namaBarang,
 
-    return filteredProducts.slice(
-      start,
-      start + ITEMS_PER_PAGE
+          qtyGudang:
+            item.qtyAvailable || 0,
+
+          serialCode:
+            item.partNumber || "-",
+
+          statusStock:
+            getStockStatus(
+              item.qtyAvailable || 0
+            ),
+        })
+      );
+
+      setStockList(mapped);
+    } catch (error) {
+      console.error(
+        "LOAD INVENTORY ERROR:",
+        error
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // =========================
+  // REAL ANALYTICS
+  // =========================
+
+  // LOWEST STOCK
+  const slow = useMemo(() => {
+    return getSlowMovingItems(
+      stockList
     );
-  }, [filteredProducts, page]);
+  }, [stockList]);
+
+  // HIGHEST STOCK
+  const tops = useMemo(() => {
+    return getTopStockItems(
+      stockList
+    );
+  }, [stockList]);
+
+  // STOCK STATUS SUMMARY
+  const cats = useMemo(() => {
+    return getStockSummary(
+      stockList
+    );
+  }, [stockList]);
+
+  // =========================
+  // DUMMY DATA
+  // TODO:
+  // nanti ganti pakai API transaksi
+  // =========================
+
+  const pos = [
+    {
+      category: "Raw Material",
+      poPending: 12,
+      backOrder: 8,
+      poReceiving: 15,
+    },
+    {
+      category: "Chemical",
+      poPending: 5,
+      backOrder: 3,
+      poReceiving: 7,
+    },
+    {
+      category: "Packaging",
+      poPending: 10,
+      backOrder: 4,
+      poReceiving: 9,
+    },
+  ];
+
+  // TODO:
+  // nanti ganti pakai API Sales Order & Invoice
+  const so = [
+    {
+      category: "January",
+      salesOrder: 120,
+      salesInvoice: 110,
+    },
+    {
+      category: "February",
+      salesOrder: 140,
+      salesInvoice: 135,
+    },
+    {
+      category: "March",
+      salesOrder: 180,
+      salesInvoice: 160,
+    },
+  ];
+
+  // =========================
+  // FILTER STOCK LIST
+  // =========================
+
+  const filteredProducts =
+    useMemo(() => {
+      return stockList
+        .filter((p: any) => {
+          if (
+            statusFilter === "all"
+          )
+            return true;
+
+          return (
+            p.statusStock ===
+            statusFilter
+          );
+        })
+
+        .filter((p: any) =>
+          (p.namaBarang || "")
+            .toLowerCase()
+            .includes(
+              search.toLowerCase()
+            )
+        );
+    }, [
+      stockList,
+      search,
+      statusFilter,
+    ]);
+
+  // =========================
+  // PAGINATION
+  // =========================
+
+  const ITEMS_PER_PAGE = 20;
+
+  const paginatedProducts =
+    useMemo(() => {
+      const start =
+        (page - 1) *
+        ITEMS_PER_PAGE;
+
+      return filteredProducts.slice(
+        start,
+        start + ITEMS_PER_PAGE
+      );
+    }, [filteredProducts, page]);
 
   const totalPages = Math.ceil(
-    filteredProducts.length / ITEMS_PER_PAGE
+    filteredProducts.length /
+      ITEMS_PER_PAGE
   );
 
+  // =========================
   // PIE CHART
-  const totalSales = cats.reduce(
-    (a, b) => a + b.totalSales,
+  // =========================
+
+  const totalItems = cats.reduce(
+    (a, b) => a + b.value,
     0
   );
 
   const pieData = cats.map((c) => ({
     ...c,
-    percentage: totalSales
+
+    percentage: totalItems
       ? +(
-          (c.totalSales / totalSales) *
+          (c.value / totalItems) *
           100
         ).toFixed(1)
       : 0,
@@ -160,8 +313,13 @@ function InventoryPage() {
         title="Inventory Dashboard"
         description="Pantau pergerakan stok, kategori penjualan, dan status PO."
         crumbs={[
-          { label: "Dashboard", to: "/dashboard" },
-          { label: "Inventory" },
+          {
+            label: "Dashboard",
+            to: "/dashboard",
+          },
+          {
+            label: "Inventory",
+          },
         ]}
       />
 
@@ -187,10 +345,14 @@ function InventoryPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Item Desc</TableHead>
+                  <TableHead>
+                    Item Desc
+                  </TableHead>
+
                   <TableHead className="text-right">
                     Qty
                   </TableHead>
+
                   <TableHead className="text-right">
                     Total COGS
                   </TableHead>
@@ -198,32 +360,25 @@ function InventoryPage() {
               </TableHeader>
 
               <TableBody>
-                {slow.map((i) => (
-                  <TableRow key={i.itemDesc}>
+                {slow.map((i: any) => (
+                  <TableRow
+                    key={i.itemDesc}
+                  >
                     <TableCell className="font-medium">
                       {i.itemDesc}
                     </TableCell>
 
-                    <TableCell className="text-right tabular-nums">
+                    <TableCell className="text-right">
                       {fmtNum(i.qty)}
                     </TableCell>
 
-                    <TableCell className="text-right tabular-nums">
-                      {fmtIDR(i.totalCogs)}
+                    <TableCell className="text-right">
+                      {fmtIDR(
+                        i.totalCogs
+                      )}
                     </TableCell>
                   </TableRow>
                 ))}
-
-                {slow.length === 0 && (
-                  <TableRow>
-                    <TableCell
-                      colSpan={3}
-                      className="text-center text-sm text-muted-foreground py-6"
-                    >
-                      Tidak ada data.
-                    </TableCell>
-                  </TableRow>
-                )}
               </TableBody>
             </Table>
           </CardContent>
@@ -240,10 +395,14 @@ function InventoryPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Item Desc</TableHead>
+                  <TableHead>
+                    Item Desc
+                  </TableHead>
+
                   <TableHead className="text-right">
                     Qty
                   </TableHead>
+
                   <TableHead className="text-right">
                     Total Sales
                   </TableHead>
@@ -251,32 +410,25 @@ function InventoryPage() {
               </TableHeader>
 
               <TableBody>
-                {tops.map((i) => (
-                  <TableRow key={i.itemDesc}>
+                {tops.map((i: any) => (
+                  <TableRow
+                    key={i.itemDesc}
+                  >
                     <TableCell className="font-medium">
                       {i.itemDesc}
                     </TableCell>
 
-                    <TableCell className="text-right tabular-nums">
+                    <TableCell className="text-right">
                       {fmtNum(i.qty)}
                     </TableCell>
 
-                    <TableCell className="text-right tabular-nums">
-                      {fmtIDR(i.totalSales)}
+                    <TableCell className="text-right">
+                      {fmtIDR(
+                        i.totalSales
+                      )}
                     </TableCell>
                   </TableRow>
                 ))}
-
-                {tops.length === 0 && (
-                  <TableRow>
-                    <TableCell
-                      colSpan={3}
-                      className="text-center text-sm text-muted-foreground py-6"
-                    >
-                      Tidak ada data.
-                    </TableCell>
-                  </TableRow>
-                )}
               </TableBody>
             </Table>
           </CardContent>
@@ -285,89 +437,108 @@ function InventoryPage() {
 
       {/* CHARTS */}
       <div className="mt-4 grid gap-4 lg:grid-cols-3">
+        {/* PIE CHART */}
         <Card className="rounded-xl shadow-sm">
           <CardHeader>
             <CardTitle className="text-base">
-              Sales per Category
+              Stock Status Summary
             </CardTitle>
           </CardHeader>
 
-        <CardContent>
-          <div className="h-72">
-            <ResponsiveContainer
-            width="100%"
-            height="100%" >
-      <PieChart>
-        <Pie
-          data={pieData}
-          dataKey="totalSales"
-          nameKey="category"
-          innerRadius={50}
-          outerRadius={90}
-          paddingAngle={2}
-        >
-          {pieData.map((_, i) => (
-            <Cell
-              key={i}
-              fill={
-                PIE_COLORS[
-                  i % PIE_COLORS.length
-                ]
-              }
-            />
-          ))}
-        </Pie>
+          <CardContent>
+            <div className="h-72">
+              <ResponsiveContainer
+                width="100%"
+                height="100%"
+              >
+                <PieChart>
+                  <Pie
+                    data={pieData}
+                    dataKey="value"
+                    nameKey="name"
+                    innerRadius={50}
+                    outerRadius={90}
+                    paddingAngle={2}
+                  >
+                    {pieData.map(
+                      (_, i) => (
+                        <Cell
+                          key={i}
+                          fill={
+                            PIE_COLORS[
+                              i %
+                                PIE_COLORS.length
+                            ]
+                          }
+                        />
+                      )
+                    )}
+                  </Pie>
 
-        <Tooltip
-          formatter={(
-            v: number,
-            _n,
-            p: any
-          ) => [
-            `${fmtIDR(v)} (${p.payload.percentage}%)`,
-            p.payload.category,
-          ]}
-        />
+                  <Tooltip
+                    formatter={(
+                      v: number,
+                      _n,
+                      p: any
+                    ) => [
+                      `${fmtNum(
+                        v
+                      )} Items (${
+                        p.payload
+                          .percentage
+                      }%)`,
+                      p.payload.name,
+                    ]}
+                  />
 
-        {/* INI YANG KURANG */}
-        <Legend />
-      </PieChart>
-    </ResponsiveContainer>
-  </div>
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
 
-  {/* KETERANGAN CATEGORY */}
-  <div className="mt-4 space-y-2">
-    {pieData.map((c, i) => (
-      <div
-        key={c.category}
-        className="flex items-center justify-between text-sm"
-      >
-        <div className="flex items-center gap-2">
-          <span
-            className="h-3 w-3 rounded-sm"
-            style={{
-              background:
-                PIE_COLORS[
-                  i % PIE_COLORS.length
-                ],
-            }}
-          />
+            {/* DETAIL */}
+            <div className="mt-4 space-y-2">
+              {pieData.map(
+                (c, i) => (
+                  <div
+                    key={c.name}
+                    className="flex items-center justify-between text-sm"
+                  >
+                    <div className="flex items-center gap-2">
+                      <span
+                        className="h-3 w-3 rounded-sm"
+                        style={{
+                          background:
+                            PIE_COLORS[
+                              i %
+                                PIE_COLORS.length
+                            ],
+                        }}
+                      />
 
-          <span className="font-medium">
-            {c.category}
-          </span>
-        </div>
+                      <span className="font-medium">
+                        {c.name}
+                      </span>
+                    </div>
 
-        <span className="text-muted-foreground">
-          {c.percentage}% •{" "}
-          {fmtIDR(c.totalSales)}
-        </span>
-      </div>
-    ))}
-  </div>
-</CardContent>
+                    <span className="text-muted-foreground">
+                      {
+                        c.percentage
+                      }
+                      % •{" "}
+                      {fmtNum(
+                        c.value
+                      )}{" "}
+                      Items
+                    </span>
+                  </div>
+                )
+              )}
+            </div>
+          </CardContent>
         </Card>
 
+        {/* PO VS RECEIVING */}
         <Card className="rounded-xl shadow-sm lg:col-span-2">
           <CardHeader>
             <CardTitle className="text-base">
@@ -382,44 +553,29 @@ function InventoryPage() {
                 height="100%"
               >
                 <BarChart data={pos}>
-                  <CartesianGrid
-                    strokeDasharray="3 3"
-                    stroke="#E2E8F0"
-                  />
+                  <CartesianGrid strokeDasharray="3 3" />
 
-                  <XAxis
-                    dataKey="category"
-                    stroke="#64748B"
-                    fontSize={12}
-                  />
+                  <XAxis dataKey="category" />
 
-                  <YAxis
-                    stroke="#64748B"
-                    fontSize={12}
-                  />
+                  <YAxis />
 
                   <Tooltip />
+
                   <Legend />
 
                   <Bar
                     dataKey="poPending"
-                    name="PO Pending"
                     fill="#4361EE"
-                    radius={[4, 4, 0, 0]}
                   />
 
                   <Bar
                     dataKey="backOrder"
-                    name="Back Order"
                     fill="#F59E0B"
-                    radius={[4, 4, 0, 0]}
                   />
 
                   <Bar
                     dataKey="poReceiving"
-                    name="PO Receiving"
                     fill="#10B981"
-                    radius={[4, 4, 0, 0]}
                   />
                 </BarChart>
               </ResponsiveContainer>
@@ -443,37 +599,24 @@ function InventoryPage() {
               height="100%"
             >
               <BarChart data={so}>
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  stroke="#E2E8F0"
-                />
+                <CartesianGrid strokeDasharray="3 3" />
 
-                <XAxis
-                  dataKey="category"
-                  stroke="#64748B"
-                  fontSize={12}
-                />
+                <XAxis dataKey="category" />
 
-                <YAxis
-                  stroke="#64748B"
-                  fontSize={12}
-                />
+                <YAxis />
 
                 <Tooltip />
+
                 <Legend />
 
                 <Bar
                   dataKey="salesOrder"
-                  name="Sales Order"
                   fill="#7da0eb"
-                  radius={[4, 4, 0, 0]}
                 />
 
                 <Bar
                   dataKey="salesInvoice"
-                  name="Sales Invoice"
                   fill="#4361EE"
-                  radius={[4, 4, 0, 0]}
                 />
               </BarChart>
             </ResponsiveContainer>
@@ -490,155 +633,197 @@ function InventoryPage() {
 
           <div className="flex flex-wrap items-center gap-3">
             <Input
-            placeholder="Search product..."
-            value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
-              setPage(1);
-            }}
-            className="w-[250px]"
-          />
+              placeholder="Search product..."
+              value={search}
+              onChange={(e) => {
+                setSearch(
+                  e.target.value
+                );
 
-          <Select
-            value={statusFilter}
-            onValueChange={(v) => {
-              setStatusFilter(v);
-              setPage(1);
-            }}
-          >
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Filter Status" />
-            </SelectTrigger>
+                setPage(1);
+              }}
+              className="w-[250px]"
+            />
 
-            <SelectContent>
-              <SelectItem value="all">
-                All Status
-              </SelectItem>
+            <Select
+              value={statusFilter}
+              onValueChange={(v) => {
+                setStatusFilter(v);
 
-              <SelectItem value="Safe">
-                Safe
-              </SelectItem>
+                setPage(1);
+              }}
+            >
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Filter Status" />
+              </SelectTrigger>
 
-              <SelectItem value="Low Stock">
-                Low Stock
-              </SelectItem>
+              <SelectContent>
+                <SelectItem value="all">
+                  All Status
+                </SelectItem>
 
-              <SelectItem value="Critical">
-                Critical
-              </SelectItem>
+                <SelectItem value="Safe">
+                  Safe
+                </SelectItem>
 
-              <SelectItem value="Out of Stock">
-                Out of Stock
-              </SelectItem>
-            </SelectContent>
-          </Select>
+                <SelectItem value="Low Stock">
+                  Low Stock
+                </SelectItem>
+
+                <SelectItem value="Critical">
+                  Critical
+                </SelectItem>
+
+                <SelectItem value="Out of Stock">
+                  Out of Stock
+                </SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </CardHeader>
 
         <CardContent>
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>No</TableHead>
-                  <TableHead>Item Code</TableHead>
-                  <TableHead>Item Desc</TableHead>
-                  <TableHead>Serial</TableHead>
-                  <TableHead className="text-right">
-                    Qty Gudang
-                  </TableHead>
-                  <TableHead>Status</TableHead>
-                </TableRow>
-              </TableHeader>
-
-              <TableBody>
-                {paginatedProducts.map((s, idx) => (
-                  <TableRow key={s.itemCode}>
-                    <TableCell>
-                      {(page - 1) * ITEMS_PER_PAGE +
-                        idx +
-                        1}
-                    </TableCell>
-
-                    <TableCell className="font-mono text-xs">
-                      {s.itemCode}
-                    </TableCell>
-
-                    <TableCell className="font-medium">
-                      {s.itemDesc}
-                    </TableCell>
-
-                    <TableCell className="font-mono text-xs">
-                      {s.serialCode}
-                    </TableCell>
-
-                    <TableCell className="text-right tabular-nums">
-                      {fmtNum(s.qtyGudang)}
-                    </TableCell>
-
-                    <TableCell>
-                      <Badge
-                        variant={statusVariant(
-                          s.statusStock
-                        )}
-                      >
-                        {s.statusStock}
-                      </Badge>
-                    </TableCell>
-                  </TableRow>
-                ))}
-
-                {paginatedProducts.length === 0 && (
-                  <TableRow>
-                    <TableCell
-                      colSpan={6}
-                      className="text-center text-sm text-muted-foreground py-6"
-                    >
-                      Tidak ada data.
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-
-            {/* PAGINATION */}
-            <div className="flex justify-end gap-2 mt-4">
-              <Button
-                variant="outline"
-                disabled={page === 1}
-                onClick={() =>
-                  setPage((p) => p - 1)
-                }
-              >
-                Prev
-              </Button>
-
-              <div className="flex items-center px-3 text-sm text-muted-foreground">
-                {page} / {totalPages || 1}
-              </div>
-
-              <Button
-                variant="outline"
-                disabled={
-                  page === totalPages ||
-                  totalPages === 0
-                }
-                onClick={() =>
-                  setPage((p) => p + 1)
-                }
-              >
-                Next
-              </Button>
+          {loading ? (
+            <div className="py-10 text-center">
+              Loading inventory...
             </div>
-          </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>
+                      No
+                    </TableHead>
+
+                    <TableHead>
+                      Item Code
+                    </TableHead>
+
+                    <TableHead>
+                      Item Desc
+                    </TableHead>
+
+                    <TableHead>
+                      Serial
+                    </TableHead>
+
+                    <TableHead className="text-right">
+                      Qty Gudang
+                    </TableHead>
+
+                    <TableHead>
+                      Status
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+
+                <TableBody>
+                  {paginatedProducts.map(
+                    (
+                      s: any,
+                      idx
+                    ) => (
+                      <TableRow
+                        key={
+                          s.kodeItem ||
+                          idx
+                        }
+                      >
+                        <TableCell>
+                          {(page - 1) *
+                            ITEMS_PER_PAGE +
+                            idx +
+                            1}
+                        </TableCell>
+
+                        <TableCell className="font-mono text-xs">
+                          {
+                            s.kodeItem
+                          }
+                        </TableCell>
+
+                        <TableCell className="font-medium">
+                          {
+                            s.namaBarang
+                          }
+                        </TableCell>
+
+                        <TableCell className="font-mono text-xs">
+                          {
+                            s.serialCode
+                          }
+                        </TableCell>
+
+                        <TableCell className="text-right">
+                          {fmtNum(
+                            s.qtyGudang
+                          )}
+                        </TableCell>
+
+                        <TableCell>
+                          <Badge
+                            variant={statusVariant(
+                              s.statusStock
+                            )}
+                          >
+                            {
+                              s.statusStock
+                            }
+                          </Badge>
+                        </TableCell>
+                      </TableRow>
+                    )
+                  )}
+                </TableBody>
+              </Table>
+
+              {/* PAGINATION */}
+              <div className="flex justify-end gap-2 mt-4">
+                <Button
+                  variant="outline"
+                  disabled={page === 1}
+                  onClick={() =>
+                    setPage(
+                      (p) => p - 1
+                    )
+                  }
+                >
+                  Prev
+                </Button>
+
+                <div className="flex items-center px-3 text-sm">
+                  {page} /{" "}
+                  {totalPages || 1}
+                </div>
+
+                <Button
+                  variant="outline"
+                  disabled={
+                    page ===
+                      totalPages ||
+                    totalPages === 0
+                  }
+                  onClick={() =>
+                    setPage(
+                      (p) => p + 1
+                    )
+                  }
+                >
+                  Next
+                </Button>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
   );
 }
 
-export const Route = createFileRoute(
-  "/dashboard/inventory"
-)({
-  component: InventoryPage,
-});
+export const Route =
+  createFileRoute(
+    "/dashboard/inventory"
+  )({
+    component: InventoryPage,
+  });

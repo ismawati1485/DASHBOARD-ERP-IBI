@@ -1,11 +1,15 @@
+// ============================================
+// FILE: src/routes/login.tsx
+// ============================================
+
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState, type FormEvent } from "react";
+import { useState, type FormEvent, useEffect } from "react";
 import { Building2 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { login, getDashboardPath, VALID_ROLES } from "@/lib/auth";
+import { loginAsync, getDashboardPath, VALID_ROLES, getSession } from "@/lib/auth";
 
 export const Route = createFileRoute("/login")({
   head: () => ({ meta: [{ title: "Sign in — ERP Dashboard" }] }),
@@ -17,16 +21,39 @@ function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e: FormEvent) => {
+  // Redirect jika sudah login
+  useEffect(() => {
+    const session = getSession();
+    if (session) {
+      navigate({ to: getDashboardPath(session.user.role) });
+    }
+  }, [navigate]);
+  
+
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError("");
-    const session = login(username, password);
-    if (!session) {
-      setError(`Invalid role. Try one of: ${VALID_ROLES.join(", ")}`);
-      return;
+    setIsLoading(true);
+
+    try {
+      // Try login dengan backend API
+      const session = await loginAsync(username, password);
+      
+      if (!session) {
+        setError("Invalid username or password");
+        setPassword("");
+        return;
+      }
+
+      navigate({ to: getDashboardPath(session.user.role) });
+    } catch (err) {
+      setError("An error occurred. Please try again.");
+      console.error(err);
+    } finally {
+      setIsLoading(false);
     }
-    navigate({ to: getDashboardPath(session.role) });
   };
 
   return (
@@ -49,16 +76,18 @@ function LoginPage() {
             cashflow, tax reporting, and more — all from one clean interface.
           </p>
           <div className="rounded-xl border bg-card p-4 text-xs text-muted-foreground shadow-sm">
-            <div className="mb-1 font-medium text-foreground">Demo roles</div>
+            <div className="mb-1 font-medium text-foreground">Demo roles available</div>
             <div className="flex flex-wrap gap-1.5">
               {VALID_ROLES.map((r) => (
-            <span
-              key={r}
-              className="rounded-lg bg-[#EEF2FF] px-2.5 py-1 text-[#4361EE] capitalize font-medium"
-            >{r}</span>
+                <span
+                  key={r}
+                  className="rounded-lg bg-[#EEF2FF] px-2.5 py-1 text-[#4361EE] capitalize font-medium"
+                >
+                  {r}
+                </span>
               ))}
             </div>
-            <p className="mt-2">Use the role name as username (any password).</p>
+            <p className="mt-2">Use the role name as username. Password: any value (for demo)</p>
           </div>
         </div>
 
@@ -79,11 +108,12 @@ function LoginPage() {
                 <Label htmlFor="username">Username</Label>
                 <Input
                   id="username"
-                  placeholder="e.g. sales"
+                  placeholder="e.g. admin_sales"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   autoComplete="username"
                   required
+                  disabled={isLoading}
                 />
               </div>
               <div className="space-y-2">
@@ -96,6 +126,7 @@ function LoginPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   autoComplete="current-password"
                   required
+                  disabled={isLoading}
                 />
               </div>
               {error && (
@@ -105,9 +136,10 @@ function LoginPage() {
               )}
               <Button
                 type="submit"
-                className="w-full bg-[#4361EE] text-white shadow-md shadow-blue-200 hover:bg-[#3651D4]"
+                disabled={isLoading}
+                className="w-full bg-[#4361EE] text-white shadow-md shadow-blue-200 hover:bg-[#3651D4] disabled:opacity-50"
               >
-                Sign in
+                {isLoading ? "Signing in..." : "Sign in"}
               </Button>
             </form>
           </CardContent>

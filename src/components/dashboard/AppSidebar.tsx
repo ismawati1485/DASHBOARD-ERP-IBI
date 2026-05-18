@@ -78,7 +78,7 @@ export function AppSidebar({ workspace }: { workspace: WorkspaceConfig }) {
             <div className="flex items-center justify-between rounded-xl bg-white/10 p-3 backdrop-blur border border-white/10">
               <div className="flex flex-col text-xs">
                 <span className="font-medium text-white">
-                  {session.username}
+                  {session.user.username}
                 </span>
               </div>
             </div>

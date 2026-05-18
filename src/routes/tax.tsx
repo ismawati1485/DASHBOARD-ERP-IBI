@@ -2,5 +2,6 @@ import { createFileRoute } from "@tanstack/react-router";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 
 export const Route = createFileRoute("/tax")({
-  component: () => <DashboardLayout allowedRoles={["tax"]} />,
+  component: () => <DashboardLayout allowedRoles={["admin_tax"]} />,
 });
+

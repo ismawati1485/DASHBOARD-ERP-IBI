@@ -1,3 +1,6 @@
+import { useNavigate } from "@tanstack/react-router";
+import { useAutoLogout } from "@/hooks/useAutoLogout";
+
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   Outlet,
@@ -109,6 +112,9 @@ function RootShell({ children }: { children: React.ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const navigate = useNavigate();
+
+  useAutoLogout(navigate);
 
   return (
     <QueryClientProvider client={queryClient}>

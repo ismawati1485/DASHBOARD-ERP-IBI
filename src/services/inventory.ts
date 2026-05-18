@@ -1,32 +1,32 @@
-import {
-  slowMoving,
-  topItemSalesInv,
-  salesPerCategory,
-  poVsReceiving,
-  soVsInvoice,
-  stockList,
-} from "@/data/inventory";
+const API_URL = import.meta.env.VITE_API_URL;
+const TOKEN = import.meta.env.VITE_TOKEN;
 
-export async function getSlowMovingItems() {
-  return slowMoving;
-}
-
-export async function getTopItemSales() {
-  return topItemSalesInv;
-}
-
-export async function getSalesPerCategory() {
-  return salesPerCategory;
-}
-
-export async function getPOvsReceiving() {
-  return poVsReceiving;
-}
-
-export async function getSOvsInvoice() {
-  return soVsInvoice;
-}
-
+// GET INVENTORY LIST
 export async function getStockList() {
-  return stockList;
+  try {
+    const response = await fetch(
+      `${API_URL}/public/inventory?pageSize=100&pageNumber=1`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${TOKEN}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch inventory");
+    }
+
+    const data = await response.json();
+
+    console.log("Inventory API:", data);
+
+    // sesuaikan kalau response API berbeda
+    return data.list || [];
+  } catch (error) {
+    console.error("Inventory fetch error:", error);
+    return [];
+  }
 }
