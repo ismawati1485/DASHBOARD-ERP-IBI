@@ -1,3 +1,4 @@
+{/*
 import type { CompanyId } from "./company";
 
 export type TaxKpi = {
@@ -105,3 +106,5 @@ export const pphRows: PphRow[] = [
   { companyId: "bkj",  coaBiaya: "5601 - Royalti", coaPph: "2104 - PPh 4(2)", pphTerutang: 6_200_000, lawanTransaksi: "PT Lisensi Indo", npwp: "07.890.123.4-567.000", status: "Overdue" },
   { companyId: "ttet", coaBiaya: "5301 - Promosi", coaPph: "2103 - PPh 23", pphTerutang: 2_800_000, lawanTransaksi: "Media Cetak", npwp: "08.901.234.5-678.000", status: "Lapor" },
 ];
+
+*/}

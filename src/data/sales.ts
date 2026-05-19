@@ -1,4 +1,6 @@
-import type { CompanyId } from "./company";
+
+{/*
+  import type { CompanyId } from "./company";
 
 export type SalesKpi = {
   companyId: CompanyId;
@@ -208,3 +210,5 @@ export const trenPenjualan: {
     }))
   );
 })();
+
+*/}

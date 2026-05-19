@@ -1,4 +1,5 @@
-import {
+{/* 
+  import {
   BarChart3,
   Users,
   Package,
@@ -114,3 +115,4 @@ export function workspaceForRole(role: Role): WorkspaceConfig {
   return OPERATION_WORKSPACE;
 
 }
+*/}

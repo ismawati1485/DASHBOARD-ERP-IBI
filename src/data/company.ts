@@ -1,4 +1,4 @@
-export type CompanyId =
+{/* export type CompanyId =
   | "ibi1"
   | "ibi2"
   | "sak"
@@ -44,4 +44,4 @@ export const companies: Company[] = [
   { id: "palopo", name: "PT Berkat Karunia Jaya (Palopo)" },
   { id: "kendari", name: "PT Berkat Karunia Jaya (Kendari)" },
   { id: "tania", name: "Tania Diyorejo" },
-];
+]; */}
