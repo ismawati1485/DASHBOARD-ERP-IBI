@@ -1,4 +1,3 @@
-{/* 
   import {
   BarChart3,
   Users,
@@ -115,4 +114,3 @@ export function workspaceForRole(role: Role): WorkspaceConfig {
   return OPERATION_WORKSPACE;
 
 }
-*/}

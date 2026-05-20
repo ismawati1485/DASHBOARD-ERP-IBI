@@ -1,16 +1,18 @@
-require('dotenv').config();
-const express = require('express');
+const express = require("express");
+const cors = require("cors");
 
-const inventoryRoutes = require('./src/routes/inventoryRoutes');
+const authRoutes = require("./src/routes/auth");
+const inventoryRoutes = require("./src/routes/inventory");
 
 const app = express();
 
+app.use(cors());
+
 app.use(express.json());
 
-app.use('/api', inventoryRoutes);
+app.use("/auth", authRoutes);
+app.use("/inventory", inventoryRoutes);
 
-const PORT = 3000;
-
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
+app.listen(3000, () => {
+  console.log("Server running on port 3000");
 });

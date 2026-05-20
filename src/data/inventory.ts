@@ -1,4 +1,4 @@
-{/* import type { CompanyId } from "./company";
+import type { CompanyId } from "./company";
 
 export const slowMoving = [
   {
@@ -583,4 +583,3 @@ export const stockList: {
     statusStock: "Low Stock",
   },
 ];
-*/}

@@ -1,4 +1,3 @@
-{/*   
 export type ProductionByItem = {
   item: string;
   gudang: string;
@@ -57,4 +56,3 @@ export const productionAnalysis: ProductionAnalysisRow[] = [
   { noMesin: "MSN-006", item: "PG-01", description: "Pipe Galvanis 1\"", jumlahWo: 15, tonase: 68.4, cogm: 580000000, estimasiTkl: 11, estimasiWaktu: "4 jam" },
   { noMesin: "MSN-007", item: "PL-03", description: "Plate SPHC 3mm", jumlahWo: 12, tonase: 54.2, cogm: 510000000, estimasiTkl: 10, estimasiWaktu: "4 jam" },
 ];
-*/}

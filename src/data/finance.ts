@@ -1,4 +1,4 @@
-{/* import type { CompanyId } from "./company";
+import type { CompanyId } from "./company";
 
 export type FinanceKpi = {
   companyId: CompanyId;
@@ -82,4 +82,3 @@ export const daftarTugas: { id: number; companyId: CompanyId; supplier: string; 
   { id: 6, companyId: "msg",  supplier: "Agensi Kreatif", group: "Promosi", tanggal: "2026-04-28", jatuhTempo: "2026-05-09", total: 35_000_000, status: "Urgent" },
   { id: 7, companyId: "abm",  supplier: "PT Properti Indo", group: "Sewa", tanggal: "2026-04-10", jatuhTempo: "2026-05-02", total: 90_000_000, status: "Overdue" },
 ];
-*/}

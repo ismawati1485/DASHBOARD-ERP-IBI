@@ -1,4 +1,4 @@
-{/* import type { CompanyId } from "./company";
+import type { CompanyId } from "./company";
 
 export type AccountingKpi = {
   companyId: CompanyId;
@@ -108,4 +108,3 @@ export const arVsAp: ArApRow[] = [
   { companyId: "sak",  deptAr: "SAK - Proyek", sisaAr: 410_000_000, deptAp: "SAK - Subkontraktor", sisaAp: 280_000_000, status: "Jatuh Tempo" },
   { companyId: "msg",  deptAr: "MSG - Online", sisaAr: 75_000_000, deptAp: "MSG - Marketplace Fee", sisaAp: 32_000_000, status: "Lancar" },
 ];
-*/}

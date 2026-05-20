@@ -1,4 +1,4 @@
-{/* import type { CompanyId } from "./company";
+import type { CompanyId } from "./company";
 
 export const topCustomers: { companyId: CompanyId; customerName: string; jumlahNota: number; totalPenjualan: number; lastOrdered: string }[] = [
   { companyId: "ibi1", customerName: "PT Casia Karunia Jaya", jumlahNota: 142, totalPenjualan: 1_850_000_000, lastOrdered: "2026-05-06" },
@@ -47,4 +47,3 @@ export const customerSegments: CustomerSegment[] = [
   { companyId: "sak", tipe: "Karyawan", percentage: 8 },
   { companyId: "sak", tipe: "Lain-lain", percentage: 9 },
 ];
-*/}

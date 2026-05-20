@@ -74,5 +74,4 @@ router.get("/", async (req, res) => {
 
 });
 
-// WAJIB ADA
 module.exports = router;
